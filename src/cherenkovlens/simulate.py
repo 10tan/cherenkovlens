@@ -207,7 +207,7 @@ class ShowerSimulator:
         grad_mean = cfg.get("time_gradient_mean", 1.6)
         grad_std = cfg.get("time_gradient_std", 0.4)
         time_gradient = float(self.rng.normal(grad_mean, grad_std))
-        jitter_ns = cfg.get("time_jitter_ns", 0.35)
+        jitter_ns = cfg.get("time_jitter_ns", 0.75)
 
         # Coordinate projected along major axis:
         proj_long = dx * cos_phi + dy * sin_phi
@@ -258,6 +258,9 @@ class ShowerSimulator:
     def simulate_proton(
         self,
         amplitude: Optional[float] = None,
+        x0: Optional[float] = None,
+        y0: Optional[float] = None,
+        phi: Optional[float] = None,
         sigma_nsb: Optional[float] = None,
         force_muon_ring: bool = False,
     ) -> Event:
@@ -283,14 +286,18 @@ class ShowerSimulator:
         is_muon_ring = force_muon_ring or (self.rng.uniform(0.0, 1.0) < muon_frac)
 
         if is_muon_ring:
-            return self._simulate_muon_ring(amplitude, sigma_nsb)
+            return self._simulate_muon_ring(amplitude, x0=x0, y0=y0, sigma_nsb=sigma_nsb)
 
         # Standard multi-blob hadronic shower
         r_max = cfg.get("centroid_r_max_deg", 1.2)
-        r_core = np.sqrt(self.rng.uniform(0.02, r_max**2))
-        theta_core = self.rng.uniform(0.0, 2.0 * np.pi)
-        x_center = r_core * np.cos(theta_core)
-        y_center = r_core * np.sin(theta_core)
+        if x0 is not None and y0 is not None:
+            x_center = float(x0)
+            y_center = float(y0)
+        else:
+            r_core = np.sqrt(self.rng.uniform(0.02, r_max**2))
+            theta_core = self.rng.uniform(0.0, 2.0 * np.pi)
+            x_center = float(r_core * np.cos(theta_core))
+            y_center = float(r_core * np.sin(theta_core))
 
         n_blobs_min = cfg.get("n_blobs_min", 2)
         n_blobs_max = cfg.get("n_blobs_max", 6)
@@ -305,7 +312,7 @@ class ShowerSimulator:
         clean_intensity = np.zeros(self.camera.n_pixels, dtype=np.float64)
         time_channel = np.zeros(self.camera.n_pixels, dtype=np.float64)
         t_base = 20.0
-        jitter_ns = cfg.get("time_jitter_ns", 2.5)
+        jitter_ns = cfg.get("time_jitter_ns", 1.35)
 
         for i in range(n_blobs):
             b_amp = amplitude * blob_fractions[i]
@@ -313,7 +320,7 @@ class ShowerSimulator:
             by = y_center + self.rng.normal(0.0, blob_spread)
             bsx = self.rng.uniform(blob_size_min, blob_size_max)
             bsy = self.rng.uniform(blob_size_min, bsx)
-            b_phi = self.rng.uniform(0.0, np.pi)
+            b_phi = self.rng.uniform(0.0, np.pi) if phi is None else (phi + self.rng.normal(0.0, 0.4))
 
             # Rotation parameters for blob
             cos_p, sin_p = np.cos(b_phi), np.sin(b_phi)
@@ -369,20 +376,30 @@ class ShowerSimulator:
             clean_image=clean_img,
         )
 
-    def _simulate_muon_ring(self, amplitude: float, sigma_nsb: Optional[float] = None) -> Event:
+    def _simulate_muon_ring(
+        self,
+        amplitude: float,
+        x0: Optional[float] = None,
+        y0: Optional[float] = None,
+        sigma_nsb: Optional[float] = None,
+    ) -> Event:
         """Simulate a local single-muon ring/arc event."""
         # Ring center in camera
-        r_core = self.rng.uniform(0.0, 0.8)
-        theta_core = self.rng.uniform(0.0, 2.0 * np.pi)
-        x0 = r_core * np.cos(theta_core)
-        y0 = r_core * np.sin(theta_core)
+        if x0 is not None and y0 is not None:
+            ring_x0 = float(x0)
+            ring_y0 = float(y0)
+        else:
+            r_core = self.rng.uniform(0.0, 0.8)
+            theta_core = self.rng.uniform(0.0, 2.0 * np.pi)
+            ring_x0 = float(r_core * np.cos(theta_core))
+            ring_y0 = float(r_core * np.sin(theta_core))
 
         # Muon Cherenkov characteristic ring radius in air is ~1.0-1.3 deg
         radius = float(self.rng.uniform(0.7, 1.3))
         ring_width = float(self.rng.uniform(0.04, 0.08))
 
-        dx = self.camera.pix_x - x0
-        dy = self.camera.pix_y - y0
+        dx = self.camera.pix_x - ring_x0
+        dy = self.camera.pix_y - ring_y0
         r_pix = np.sqrt(dx**2 + dy**2)
 
         # Ring profile
@@ -417,8 +434,8 @@ class ShowerSimulator:
             "type": "proton",
             "is_muon_ring": True,
             "amplitude": amplitude,
-            "x0": float(x0),
-            "y0": float(y0),
+            "x0": float(ring_x0),
+            "y0": float(ring_y0),
             "radius": radius,
             "true_size": float(np.sum(clean_pe)),
         }

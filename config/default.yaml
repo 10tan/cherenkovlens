@@ -35,7 +35,7 @@ simulation:
     alpha_scatter_deg: 10.0   # Gaussian angular dispersion around pointing vector (deg)
     time_gradient_mean: 1.6   # arrival time gradient along major axis (ns/deg)
     time_gradient_std: 0.4
-    time_jitter_ns: 0.35      # Cherenkov timing jitter (ns)
+    time_jitter_ns: 0.75      # Realistic Cherenkov timing jitter + PMT TTS (ns)
 
   proton:
     amp_min: 70.0
@@ -47,7 +47,7 @@ simulation:
     blob_size_max_deg: 0.24
     centroid_r_max_deg: 1.2
     muon_ring_fraction: 0.08  # fraction of proton events with annular muon-like morphology
-    time_jitter_ns: 2.5       # incoherent timing jitter (ns)
+    time_jitter_ns: 1.35      # hadronic arrival time jitter across sub-cascades (ns)
 
 cleaning:
   tailcuts:

@@ -78,7 +78,7 @@ def main():
         }
         </style>
         """,
-        unsafe_allow_style_format=True,
+        unsafe_allow_html=True,
     )
 
     st.markdown("<div class='main-header'>🔭 CherenkovLens: IACT Analysis Studio</div>", unsafe_allow_html=True)
@@ -110,10 +110,11 @@ def main():
     x0 = st.sidebar.slider("Centroid X (deg)", min_value=-1.0, max_value=1.0, value=0.45, step=0.05)
     y0 = st.sidebar.slider("Centroid Y (deg)", min_value=-1.0, max_value=1.0, value=0.45, step=0.05)
 
+    phi_deg = st.sidebar.slider("Major Axis / Orientation Angle phi (deg)", min_value=-90.0, max_value=90.0, value=45.0, step=2.0)
+
     if is_gamma:
         length = st.sidebar.slider("Shower Length (deg)", min_value=0.10, max_value=0.40, value=0.25, step=0.01)
         width = st.sidebar.slider("Shower Width (deg)", min_value=0.03, max_value=0.18, value=0.08, step=0.01)
-        phi_deg = st.sidebar.slider("Major Axis Angle phi (deg)", min_value=-90.0, max_value=90.0, value=45.0, step=2.0)
     else:
         force_muon = st.sidebar.checkbox("Simulate Single Muon Ring Variant", value=False)
 
@@ -136,6 +137,9 @@ def main():
     else:
         event = sim.simulate_proton(
             amplitude=amp,
+            x0=x0,
+            y0=y0,
+            phi=np.radians(phi_deg),
             sigma_nsb=nsb_sigma,
             force_muon_ring=force_muon,
         )
@@ -262,19 +266,81 @@ def main():
     with tab3:
         st.subheader("Observatory Context: Hanle, Ladakh & The MACE / HAGAR Experiments")
         st.markdown(
-            """
-            ### The Major Atmospheric Cerenkov Experiment (MACE)
-            - **Location**: Hanle, Ladakh, India (32°46′N, 78°58′E)
-            - **Altitude**: ~4,270 metres above sea level (one of the highest astronomical sites on Earth).
-            - **Telescope Aperture**: 21-metre diameter tessellated quasi-parabolic reflector (~356 m² area).
-            - **Camera**: 1088 photomultiplier tubes arranged in a graded layout (0.1° inner, 0.2° outer) with ~4.0° field of view.
-            - **Energy Threshold**: Down to ~20–30 GeV due to extreme altitude.
+            r"""
+            ### 1. The High-Altitude Hanle Advantage
+            - **Geographic Coordinates**: Hanle, Changthang Plateau, Ladakh, India ($32^\circ 46' 46''\,\text{N}, 78^\circ 58' 35''\,\text{E}$).
+            - **Altitude**: $\sim 4,270\text{ m}$ a.s.l. (one of the highest permanent astronomical observatories globally).
+            - **Atmospheric Overburden**: Atmospheric column density at Hanle is only $\approx 600\text{ g/cm}^2$ (compared to $\approx 1,030\text{ g/cm}^2$ at sea level).
+            - **Physics Consequence**: The MACE telescope mirror ($\sim 356\text{ m}^2$ collecting area) sits directly near the shower development maximum ($X_{\max}$), sampling denser Cherenkov photon densities and pushing the observational energy threshold down to $\approx 20\text{--}30\text{ GeV}$.
 
-            ### Why Gamma / Hadron Separation Matters
-            IACTs detect brief (~few nanosecond) flashes of blue Cherenkov radiation generated in the upper atmosphere.
-            However, cosmic-ray hadrons (protons, helium nuclei) outnumber astronomical gamma rays by **1,000 : 1** or more!
-            Extracting Hillas parameters and optimizing the **Telescope Quality Factor** $Q = \\epsilon_\\gamma / \\sqrt{\\epsilon_p}$
-            is the cornerstone of discovering distant TeV blazars, pulsar wind nebulae, and gamma-ray bursts.
+            ---
+
+            ### 2. Atmospheric Cherenkov Emission Microphysics
+            When an ultra-relativistic primary gamma ray or cosmic-ray proton penetrates the atmosphere, secondary charged particles exceed the local phase velocity of light in the dielectric medium:
+            $$v > \frac{c}{n(h)} \quad \iff \quad \beta n(h) > 1$$
+            The atmospheric refractive index $n(h)$ varies with altitude $h$ following the barometric density profile:
+            $$n(h) = 1 + \eta_0 \exp\left(-\frac{h}{h_0}\right)$$
+            with scale height $h_0 \approx 7.1\text{ km}$ and ground refractivity $\eta_0 \approx 2.9 \times 10^{-4}$.
+
+            Cherenkov radiation is emitted along a forward conical wavefront with half-angle $\theta_C(h)$:
+            $$\cos\theta_C(h) = \frac{1}{\beta n(h)} \quad \implies \quad \theta_C(h) \approx \sqrt{2(n(h) - 1)} \approx 1.0^\circ \text{ to } 1.4^\circ$$
+            The spectral photon production rate per unit path length $dx$ is governed by the **Frank-Tamm equation**:
+            $$\frac{d^2 N_{\gamma}}{dx \, d\lambda} = \frac{2\pi \alpha}{\lambda^2} \left(1 - \frac{1}{\beta^2 n^2(\lambda)}\right) = \frac{2\pi \alpha}{\lambda^2} \sin^2\theta_C$$
+            Because $dN/d\lambda \propto \lambda^{-2}$, Cherenkov light is intensely concentrated in the near-UV and optical blue wavelengths ($\lambda \approx 300\text{--}450\text{ nm}$).
+
+            ---
+
+            ### 3. Shower Cascade Dynamics: Electromagnetic vs. Hadronic
+            The fundamental morphological distinction exploited in IACT analysis arises from contrasting particle interaction regimes:
+
+            1. **Electromagnetic Cascades ($\gamma$-ray Primaries)**:
+               - Dominated by alternating iterations of **pair production** ($\gamma + Z \to e^+ e^- + Z$) and **bremsstrahlung** ($e^\pm + Z \to e^\pm \gamma + Z$).
+               - Characteristic longitudinal scale is the radiation length in air, $X_0 \approx 36.66\text{ g/cm}^2$.
+               - Transverse lateral spread is driven purely by Coulomb multiple scattering, constrained by the Molière radius $R_M \approx 9.3\text{ g/cm}^2 / \rho(h)$.
+               - **Morphological Signature**: A compact, continuous, highly elliptical light pool with strict temporal coherence ($\Delta t \lesssim 1\text{--}2\text{ ns}$).
+
+            2. **Hadronic Cascades (Proton / Cosmic-Ray Primaries)**:
+               - Governed by quantum chromodynamics (QCD) inelastic collisions with atmospheric nuclei ($p + \text{Air} \to \pi^\pm, \pi^0, K^\pm, p, n$).
+               - Hadronic interaction length $\lambda_I \approx 84.9\text{ g/cm}^2 \gg X_0$.
+               - Secondary pions acquire significant transverse momentum ($p_T \sim 350\text{ MeV}/c$), causing sub-showers to bifurcate widely from the core.
+               - $\pi^0$ mesons decay quasi-instantaneously ($\tau \sim 8.5 \times 10^{-17}\text{ s}$) into twin gamma rays ($\pi^0 \to 2\gamma$), spawning displaced sub-cascades, while $\pi^\pm$ decay into penetrating muons.
+               - **Morphological Signature**: Clumpy, irregular, multi-core images with broad lateral extent and substantial arrival-time dispersion ($\Delta t \sim 3\text{--}8\text{ ns}$).
+
+            ---
+
+            ### 4. Mathematical Derivation of the Telescope Quality Factor (Q)
+            In raw observations, cosmic-ray hadrons outnumber gamma rays by several orders of magnitude:
+            $$\frac{\Phi_{\text{hadron}}(E)}{\Phi_\gamma(E)} \sim 10^3 \text{ to } 10^5$$
+
+            Let $N_\gamma$ and $N_p$ represent the true counts of gamma rays and protons arriving in the field of view over exposure time $T_{\text{obs}}$.
+            According to the Poissonian significance formalism (Li & Ma, 1983), the detection significance $\mathcal{S}$ in the presence of strong background is:
+            $$\mathcal{S} \approx \frac{N_{\text{excess}}}{\sqrt{N_{\text{background}}}} = \frac{N_\gamma}{\sqrt{N_p}} \equiv \mathcal{S}_0$$
+
+            When a machine learning classifier applies a selection cut $\theta$ on the predicted gamma probability, it retains:
+            - A fraction $\epsilon_\gamma(\theta) \in [0, 1]$ of true signal events (**gamma efficiency / True Positive Rate**)
+            - A fraction $\epsilon_p(\theta) \in [0, 1]$ of hadronic background events (**proton survival fraction / False Positive Rate**)
+
+            The post-cut statistical significance becomes:
+            $$\mathcal{S}(\theta) \approx \frac{\epsilon_\gamma(\theta) N_\gamma}{\sqrt{\epsilon_p(\theta) N_p}} = \left( \frac{\epsilon_\gamma(\theta)}{\sqrt{\epsilon_p(\theta)}} \right) \cdot \frac{N_\gamma}{\sqrt{N_p}} = Q(\theta) \cdot \mathcal{S}_0$$
+
+            where the **Telescope Quality Factor** is defined as:
+            $$Q(\theta) \equiv \frac{\epsilon_\gamma(\theta)}{\sqrt{\epsilon_p(\theta)}}$$
+
+            #### Scaling of Required Telescope Observing Time:
+            Since Poisson significance accumulates with exposure time as $\mathcal{S} \propto \sqrt{T_{\text{obs}}}$, the required telescope tracking time to attain a canonical $5\sigma$ discovery significance scales inversely with $Q^2$:
+            $$T_{\text{required}}(\theta) = \frac{T_0}{Q^2(\theta)}$$
+            - An unselected analysis ($Q = 1.0$) that would demand $100\text{ hours}$ of telescope pointing can achieve the exact same statistical threshold in **4 hours** with $Q = 5.0$, or in **under 15 minutes** with an optimized classifier cut ($Q \approx 20\text{--}60$).
+
+            ---
+
+            ### 5. Collinear Symmetry & The Alpha Parameter ($\alpha$)
+            For an on-axis point source tracked at the camera center $(0, 0)$, the major axis of an electromagnetic shower points towards the centroid direction.
+            Let $\vec{u} = (\cos\phi, \sin\phi)$ denote the major eigenvector of the second-moment tensor, and let $\vec{c} = (\bar{x}, \bar{y})$ denote the position vector from the camera tracking center to the shower centroid. The **Alpha angle** $\alpha$ is defined by:
+            $$\cos\alpha = \frac{|\vec{u} \cdot \vec{c}|}{\|\vec{u}\| \|\vec{c}\|} = \frac{|\bar{x}\cos\phi + \bar{y}\sin\phi|}{\sqrt{\bar{x}^2 + \bar{y}^2}}$$
+
+            - **Gamma-ray Signal**: Showers point directly toward the center, yielding $\alpha \approx 0^\circ$ (peaked within $\lesssim 10^\circ$).
+            - **Hadronic Background**: Arrives isotropically over the celestial sphere, yielding a uniform flat density across $[0^\circ, 90^\circ]$:
+              $$P_{\text{hadron}}(\alpha) = \frac{1}{90^\circ} \quad \forall \, \alpha \in [0^\circ, 90^\circ]$$
             """
         )
 
