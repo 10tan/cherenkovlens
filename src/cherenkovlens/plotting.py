@@ -51,64 +51,64 @@ def plot_cleaning_comparison_study(
 ) -> plt.Figure:
     """
     Produce a headline figure comparing Raw, Naive, and Tail-cuts cleaning.
-    Top row: Event camera displays.
-    Bottom row: Summary metrics (Signal Retention, Noise Leakage, Size Bias).
-    Compact widescreen aspect ratio (~1.9:1).
+    Single horizontal strip (1x4 panels):
+    1. Raw Image (Signal + NSB)
+    2. Naive Single-Cut (4.5σ)
+    3. Tail-Cuts Cleaning (6/3 Core/Boundary)
+    4. Benchmark Efficiency Summary
+    Ultra-compact widescreen panorama (~3.8:1 aspect ratio, height < 850px).
     """
-    fig, axes = plt.subplots(2, 3, figsize=(14, 7.2), dpi=200)
+    fig, axes = plt.subplots(1, 4, figsize=(16, 3.8), dpi=200)
 
-    # Top Left: Raw Noisy Image
+    # 1: Raw Noisy Image
     vmax = max(10.0, float(np.percentile(raw_img, 99.5)))
-    im0 = axes[0, 0].imshow(raw_img, origin="lower", cmap="magma", vmin=0, vmax=vmax)
-    axes[0, 0].set_title("1. Raw Image (Signal + NSB)", fontweight="bold", fontsize=11)
-    axes[0, 0].set_xlabel("Pixel X", fontsize=9)
-    axes[0, 0].set_ylabel("Pixel Y", fontsize=9)
-    fig.colorbar(im0, ax=axes[0, 0], fraction=0.046, pad=0.04, label="Intensity (pe)")
+    im0 = axes[0].imshow(raw_img, origin="lower", cmap="magma", vmin=0, vmax=vmax)
+    axes[0].set_title("1. Raw Image (Signal + NSB)", fontweight="bold", fontsize=10)
+    axes[0].set_xlabel("Pixel X", fontsize=8)
+    axes[0].set_ylabel("Pixel Y", fontsize=8)
+    fig.colorbar(im0, ax=axes[0], fraction=0.046, pad=0.04, label="Intensity (pe)")
 
-    # Top Middle: Naive Cleaning
-    im1 = axes[0, 1].imshow(naive_img, origin="lower", cmap="magma", vmin=0, vmax=vmax)
-    axes[0, 1].set_title("2. Naive Single-Cut (4.5σ)", fontweight="bold", fontsize=11)
-    axes[0, 1].set_xlabel("Pixel X", fontsize=9)
-    fig.colorbar(im1, ax=axes[0, 1], fraction=0.046, pad=0.04, label="Intensity (pe)")
+    # 2: Naive Cleaning
+    im1 = axes[1].imshow(naive_img, origin="lower", cmap="magma", vmin=0, vmax=vmax)
+    axes[1].set_title("2. Naive Single-Cut (4.5σ)", fontweight="bold", fontsize=10)
+    axes[1].set_xlabel("Pixel X", fontsize=8)
+    fig.colorbar(im1, ax=axes[1], fraction=0.046, pad=0.04, label="Intensity (pe)")
 
-    # Top Right: Tail-cuts Cleaning
-    im2 = axes[0, 2].imshow(tailcuts_img, origin="lower", cmap="magma", vmin=0, vmax=vmax)
-    axes[0, 2].set_title("3. Tail-Cuts Cleaning (6/3 Core/Bnd)", fontweight="bold", fontsize=11)
-    axes[0, 2].set_xlabel("Pixel X", fontsize=9)
-    fig.colorbar(im2, ax=axes[0, 2], fraction=0.046, pad=0.04, label="Intensity (pe)")
+    # 3: Tail-Cuts Cleaning
+    im2 = axes[2].imshow(tailcuts_img, origin="lower", cmap="magma", vmin=0, vmax=vmax)
+    axes[2].set_title("3. Tail-Cuts (6.0 / 3.0σ)", fontweight="bold", fontsize=10)
+    axes[2].set_xlabel("Pixel X", fontsize=8)
+    fig.colorbar(im2, ax=axes[2], fraction=0.046, pad=0.04, label="Intensity (pe)")
 
-    # Bottom Left: Signal Retention Rate (%)
-    methods = ["Naive", "Tail-Cuts"]
-    sig_ret = [study_summary["naive_signal_retention"] * 100, study_summary["tailcuts_signal_retention"] * 100]
-    bars3 = axes[1, 0].bar(methods, sig_ret, color=[COLOR_NAIVE, COLOR_TAILCUTS], width=0.50, edgecolor="black", alpha=0.85)
-    axes[1, 0].set_ylabel("Signal Retention (%)", fontsize=9)
-    axes[1, 0].set_ylim(0, 110)
-    axes[1, 0].set_title("Signal Pixel Recovery Rate", fontweight="bold", fontsize=11)
-    for bar in bars3:
-        h = bar.get_height()
-        axes[1, 0].text(bar.get_x() + bar.get_width() / 2.0, h + 2.0, f"{h:.1f}%", ha="center", va="bottom", fontweight="bold", fontsize=9)
+    # 4: Benchmark Efficiency Summary
+    labels = ["Retention (%)", "Size Bias (%)"]
+    naive_vals = [study_summary["naive_signal_retention"] * 100, study_summary["naive_size_bias_pct"]]
+    tc_vals = [study_summary["tailcuts_signal_retention"] * 100, study_summary["tailcuts_size_bias_pct"]]
 
-    # Bottom Middle: Noise Pixels Leaking Through
-    noise_leak = [study_summary["naive_noise_leakage_mean"], study_summary["tailcuts_noise_leakage_mean"]]
-    bars4 = axes[1, 1].bar(methods, noise_leak, color=[COLOR_NAIVE, COLOR_TAILCUTS], width=0.50, edgecolor="black", alpha=0.85)
-    axes[1, 1].set_ylabel("Noise Pixels / Event", fontsize=9)
-    axes[1, 1].set_title("NSB Noise Leakage (Lower is Better)", fontweight="bold", fontsize=11)
-    for bar in bars4:
-        h = bar.get_height()
-        axes[1, 1].text(bar.get_x() + bar.get_width() / 2.0, h + 0.002, f"{h:.3f}", ha="center", va="bottom", fontweight="bold", fontsize=9)
+    x = np.arange(len(labels))
+    width = 0.35
 
-    # Bottom Right: Size Bias (%)
-    size_bias = [study_summary["naive_size_bias_pct"], study_summary["tailcuts_size_bias_pct"]]
-    bars5 = axes[1, 2].bar(methods, size_bias, color=[COLOR_NAIVE, COLOR_TAILCUTS], width=0.50, edgecolor="black", alpha=0.85)
-    axes[1, 2].axhline(0, color="gray", linestyle="--", linewidth=1.0)
-    axes[1, 2].set_ylabel("Size Relative Bias (%)", fontsize=9)
-    axes[1, 2].set_title("Total Size Reconstruction Bias", fontweight="bold", fontsize=11)
-    for bar in bars5:
-        h = bar.get_height()
-        y_pos = h + 0.5 if h >= 0 else h - 1.2
-        axes[1, 2].text(bar.get_x() + bar.get_width() / 2.0, y_pos, f"{h:+.1f}%", ha="center", va="bottom", fontweight="bold", fontsize=9)
+    rects1 = axes[3].bar(x - width / 2, naive_vals, width, label="Naive (4.5σ)", color=COLOR_NAIVE, edgecolor="black", alpha=0.85)
+    rects2 = axes[3].bar(x + width / 2, tc_vals, width, label="Tail-Cuts (6/3σ)", color=COLOR_TAILCUTS, edgecolor="black", alpha=0.85)
 
-    fig.suptitle("IACT Image Cleaning Comparison: Tail-Cuts vs Naive Thresholding", fontsize=13, fontweight="bold", y=0.99)
+    axes[3].axhline(0, color="gray", linestyle="--", linewidth=0.8)
+    axes[3].set_xticks(x)
+    axes[3].set_xticklabels(labels, fontweight="bold", fontsize=9)
+    axes[3].set_ylabel("Percentage (%)", fontsize=8)
+    axes[3].set_title("Cleaning Efficiency", fontweight="bold", fontsize=10)
+    axes[3].legend(loc="upper right", fontsize=8)
+    axes[3].set_ylim(-15, 80)
+
+    for rect in rects1:
+        h = rect.get_height()
+        y = h + 2 if h >= 0 else h - 5
+        axes[3].text(rect.get_x() + rect.get_width() / 2.0, y, f"{h:.1f}%", ha="center", va="bottom", fontsize=8, fontweight="bold")
+    for rect in rects2:
+        h = rect.get_height()
+        y = h + 2 if h >= 0 else h - 5
+        axes[3].text(rect.get_x() + rect.get_width() / 2.0, y, f"{h:.1f}%", ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    fig.suptitle("IACT Image Cleaning Comparison: Tail-Cuts vs Naive Thresholding", fontsize=12, fontweight="bold", y=1.02)
     plt.tight_layout()
 
     if save_path:
@@ -278,7 +278,7 @@ def plot_width_length_scatter(
     save_path: Optional[str | Path] = None,
 ) -> plt.Figure:
     """Scatter plot of Width vs Length colored by class."""
-    fig, ax = plt.subplots(figsize=(7.5, 6), dpi=300)
+    fig, ax = plt.subplots(figsize=(7.5, 5.5), dpi=300)
 
     sample = df.sample(min(len(df), sample_size), random_state=42)
     gammas = sample[sample["label"] == 1]

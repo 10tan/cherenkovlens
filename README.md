@@ -248,8 +248,10 @@ Evaluated across 2,000 simulated events under nominal $\sigma_{\text{nsb}} = 4.5
 | **Two-Level Tail-Cuts ($6.0 / 3.0\sigma$)** | **62.23%** | 0.0285 pix | **-4.24%** |
 | **Gain / Advantage** | **+8.11 percentage points** | Minimal leakage | **+2.87% bias improvement** |
 
-![Image Cleaning Comparison](figures/cleaning_study.png)
-*Figure 1: Top row displays raw camera frame, naive thresholding, and two-level tail-cuts island reconstruction. Bottom row summarizes signal pixel recovery, false noise survival, and shower Size reconstruction bias.*
+<p align="center">
+  <img src="figures/cleaning_study.png" width="98%" alt="Image Cleaning Comparison" />
+</p>
+*Figure 1: Two-level tail-cuts topological island reconstruction versus naive single-cut cleaning, demonstrating signal pixel recovery (+8.11%) and reduced shower Size reconstruction bias.*
 
 ---
 
@@ -263,7 +265,9 @@ Reconstructed parameters were compared against analytical ground-truth values fo
 | **Distance ($D$)** | **0.9997** | **< 0.50%** |
 | **Alpha Angle ($\alpha$)** | **0.9963** | **< 1.0°** |
 
-![Hillas Parameter Validation](figures/hillas_validation.png)
+<p align="center">
+  <img src="figures/hillas_validation.png" width="98%" alt="Hillas Parameter Validation" />
+</p>
 *Figure 2: Ground-truth validation of reconstructed Hillas parameters showing Pearson $r > 0.996$ across all physical shower dimensions.*
 
 ---
@@ -277,11 +281,11 @@ Evaluated on a stratified test set of **7,992 events** (4,000 gamma rays, 3,992 
 | **Histogram Gradient Boosting** | 0.9998 | 99.61% | 0.9961 | 99.43% | 99.80% | 30.82 | 0.98 |
 | **Standardized Logistic Regression** | 0.9996 | 99.30% | 0.9930 | 99.20% | 99.40% | 24.15 | 0.94 |
 
-![ROC Curves](figures/roc_curve.png)
-*Figure 3: Stratified test set ROC curves comparing Random Forest, Histogram Gradient Boosting, and Logistic Regression.*
-
-![Quality Factor Curve](figures/q_factor_curve.png)
-*Figure 4: Quality Factor $Q(\theta)$ versus decision threshold $\theta$, showing peak $Q_{\max} = 59.36$ with $93.95\%$ gamma efficiency and $0.025\%$ proton survival.*
+<p align="center">
+  <img src="figures/roc_curve.png" width="49%" alt="ROC Curves" />
+  <img src="figures/q_factor_curve.png" width="49%" alt="Quality Factor Curve" />
+</p>
+*Figures 3 & 4: Left: Stratified test set ROC curves comparing Random Forest, Histogram Gradient Boosting, and Logistic Regression. Right: Quality Factor $Q(\theta)$ versus decision threshold $\theta$, showing peak $Q_{\max} = 59.36$ with $93.95\%$ gamma efficiency and $0.025\%$ proton survival.*
 
 ---
 
@@ -301,14 +305,12 @@ Evaluated on a stratified test set of **7,992 events** (4,000 gamma rays, 3,992 
 | `distance` | **1.22%** | Impact distance from camera center |
 | `size` | **0.28%** | Total reconstructed photo-electron charge |
 
-![Alpha Distribution](figures/alpha_distribution.png)
-*Figure 5: Reconstructed Alpha angle distribution: on-axis gamma rays peak at $\alpha \approx 0^\circ$ while isotropic hadrons form a flat distribution across $[0^\circ, 90^\circ]$.*
-
-![Width vs Length Scatter](figures/width_length_scatter.png)
-*Figure 6: Width versus Length parameter space showing clean morphological manifold separation.*
-
-![Feature Importance](figures/feature_importance.png)
-*Figure 7: Random Forest feature importances: arrival-time RMS, shower width, and Alpha angle provide primary discrimination power.*
+<p align="center">
+  <img src="figures/alpha_distribution.png" width="32.5%" alt="Alpha Distribution" />
+  <img src="figures/width_length_scatter.png" width="32.5%" alt="Width vs Length Scatter" />
+  <img src="figures/feature_importance.png" width="32.5%" alt="Feature Importance" />
+</p>
+*Figures 5, 6 & 7: Left: Reconstructed Alpha angle distribution peaking at $\alpha \approx 0^\circ$ for on-axis gamma rays. Middle: Width vs Length morphological manifold separation. Right: Random Forest Gini feature importances.*
 
 ---
 
@@ -322,7 +324,9 @@ The complete reduction and classification pipeline was re-evaluated under elevat
 | **$4\times$** | 18.0 pe | 2,534 | **0.9982** | 0.9994 | 15.03 | 15.28 | -0.25 |
 | **$8\times$ (Bright Moon)** | 36.0 pe | 2,017 | **0.9982** | 0.9904 | **9.71** | 7.89 | **+1.81** |
 
-![NSB Noise Robustness](figures/noise_robustness.png)
+<p align="center">
+  <img src="figures/noise_robustness.png" width="95%" alt="NSB Noise Robustness" />
+</p>
 *Figure 8: Classifier ROC AUC and Quality Factor across elevated NSB noise levels with and without tail-cuts topological cleaning.*
 
 ---

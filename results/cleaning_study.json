@@ -1,10 +1,10 @@
 {
-  "n_events_evaluated": 2000,
-  "naive_signal_retention": 0.5412109151117243,
-  "tailcuts_signal_retention": 0.6222716339872844,
-  "naive_noise_leakage_mean": 0.0065,
-  "tailcuts_noise_leakage_mean": 0.0285,
-  "naive_size_bias_pct": -7.112796215222867,
-  "tailcuts_size_bias_pct": -4.244622463454085,
-  "noise_rejection_gain_factor": 0.22807017543859648
+  "n_events_evaluated": 500,
+  "naive_signal_retention": 0.542791446521121,
+  "tailcuts_signal_retention": 0.6223466099638421,
+  "naive_noise_leakage_mean": 0.01,
+  "tailcuts_noise_leakage_mean": 0.034,
+  "naive_size_bias_pct": -7.194351443269476,
+  "tailcuts_size_bias_pct": -4.4265406829542755,
+  "noise_rejection_gain_factor": 0.29411764705882354
 }

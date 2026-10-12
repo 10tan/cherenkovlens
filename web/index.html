@@ -445,13 +445,20 @@
       <!-- FIGURE CARDS GRID -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Card 1 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/cleaning_study.png" alt="Cleaning Study" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-500/10" data-figure-index="0">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/cleaning_study.png" alt="Cleaning Study" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-brand-400">Figure 1: Tail-Cuts vs Naive Cleaning</div>
+              <div class="text-xs font-bold text-brand-400 flex items-center justify-between">
+                <span>Figure 1: Tail-Cuts vs Naive Cleaning</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-brand-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Tail-cuts retains +8.11% more signal pixels and reduces shower Size reconstruction bias to -4.24%.</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Core: 6.0σ • Bound: 3.0σ</div>
@@ -459,13 +466,20 @@
         </div>
 
         <!-- Card 2 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/hillas_validation.png" alt="Hillas Validation" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10" data-figure-index="1">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/hillas_validation.png" alt="Hillas Validation" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-cyan-400">Figure 2: Hillas Ground-Truth Recovery</div>
+              <div class="text-xs font-bold text-cyan-400 flex items-center justify-between">
+                <span>Figure 2: Hillas Ground-Truth Recovery</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Exact closed-form 2×2 covariance eigensolver validates with Pearson r > 0.997 on Length, Width, Distance, Alpha.</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">1,000 Noise-Free Showers</div>
@@ -473,13 +487,20 @@
         </div>
 
         <!-- Card 3 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/roc_curve.png" alt="ROC Curves" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10" data-figure-index="2">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/roc_curve.png" alt="ROC Curves" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-indigo-400">Figure 3: Classifier ROC Curves</div>
+              <div class="text-xs font-bold text-indigo-400 flex items-center justify-between">
+                <span>Figure 3: Classifier ROC Curves</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Random Forest, Gradient Boosting, and Logistic Regression achieve AUC = 1.0000 on test split (7,992 events).</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Stratified 80/20 Test Split</div>
@@ -487,27 +508,41 @@
         </div>
 
         <!-- Card 4 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/q_factor_curve.png" alt="Q-Factor Curve" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10" data-figure-index="3">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/q_factor_curve.png" alt="Q-Factor Curve" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-amber-400">Figure 4: Quality Factor Optimization</div>
-              <p class="text-[11px] text-slate-400 mt-1">Telescope Quality Factor Q = ε_γ / √ε_p peaks at Q_max = 63.18 at probability selection threshold θ ≈ 0.31.</p>
+              <div class="text-xs font-bold text-amber-400 flex items-center justify-between">
+                <span>Figure 4: Quality Factor Optimization</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">Telescope Quality Factor Q = ε_γ / √ε_p peaks at Q_max = 59.36 at probability selection threshold θ ≈ 0.98.</p>
             </div>
-            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Significance Boost: 63.18x</div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Significance Boost: 59.36x</div>
           </div>
         </div>
 
         <!-- Card 5 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/alpha_distribution.png" alt="Alpha Distribution" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-500/10" data-figure-index="4">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/alpha_distribution.png" alt="Alpha Distribution" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-brand-400">Figure 5: Alpha Angle Distribution</div>
+              <div class="text-xs font-bold text-brand-400 flex items-center justify-between">
+                <span>Figure 5: Alpha Angle Distribution</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-brand-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Gamma rays peak sharply at α ≈ 0° (median 6.8°), whereas isotropic hadrons exhibit a flat distribution across [0°, 90°].</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">On-Axis Pointing Signature</div>
@@ -515,13 +550,20 @@
         </div>
 
         <!-- Card 6 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/width_length_scatter.png" alt="Width Length Scatter" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10" data-figure-index="5">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/width_length_scatter.png" alt="Width Length Scatter" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-emerald-400">Figure 6: Width vs Length Separation</div>
+              <div class="text-xs font-bold text-emerald-400 flex items-center justify-between">
+                <span>Figure 6: Width vs Length Separation</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Electromagnetic cascades form a tight, narrow cluster in W/L space compared to fragmented hadronic showers.</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Morphological Manifold</div>
@@ -529,13 +571,20 @@
         </div>
 
         <!-- Card 7 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/feature_importance.png" alt="Feature Importance" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10" data-figure-index="6">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/feature_importance.png" alt="Feature Importance" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-indigo-400">Figure 7: Random Forest Feature Importances</div>
+              <div class="text-xs font-bold text-indigo-400 flex items-center justify-between">
+                <span>Figure 7: Random Forest Feature Importances</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Top discriminating features: Arrival-Time RMS (time_rms), Shower Width (width), and Pointing Angle (alpha).</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Gini & Permutation Metrics</div>
@@ -543,13 +592,20 @@
         </div>
 
         <!-- Card 8 -->
-        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
-          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
-            <img src="figures/noise_robustness.png" alt="Noise Robustness" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+        <div class="figure-card glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col cursor-pointer group hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10" data-figure-index="7">
+          <div class="relative aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/noise_robustness.png" alt="Noise Robustness" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-medium text-xs backdrop-blur-[2px]">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              <span>Click to Enlarge</span>
+            </div>
           </div>
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <div>
-              <div class="text-xs font-bold text-amber-400">Figure 8: NSB Noise Robustness Study</div>
+              <div class="text-xs font-bold text-amber-400 flex items-center justify-between">
+                <span>Figure 8: NSB Noise Robustness Study</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </div>
               <p class="text-[11px] text-slate-400 mt-1">Under 8× nominal noise (36 pe/pixel bright moonlight), tail-cuts maintains AUC = 0.99995 and Q_max = 13.86.</p>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">1×, 2×, 4×, 8× Moonlight</div>
@@ -558,6 +614,54 @@
       </div>
     </div>
   </section>
+
+  <!-- HIGH-RESOLUTION IMAGE LIGHTBOX MODAL -->
+  <div id="imageModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md transition-all duration-300">
+    <div id="modalContainer" class="relative w-full max-w-5xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transform transition-all duration-200 scale-95 opacity-0">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 bg-slate-800/80 border-b border-slate-700/70 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <span id="modalFigureIndex" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-brand-500/20 text-brand-400 border border-brand-500/30 shrink-0">Figure 1</span>
+          <h3 id="modalFigureTitle" class="text-sm sm:text-base font-bold text-white truncate">Figure Title</h3>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <a id="modalOpenExternal" href="#" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/70 transition-colors" title="Open full-resolution image in new tab">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <button id="modalCloseBtn" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/70 transition-colors cursor-pointer" title="Close modal (Esc)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Image Viewport with Nav Arrows -->
+      <div class="relative flex-1 bg-black/70 p-3 sm:p-6 flex items-center justify-center overflow-hidden min-h-[340px]">
+        <!-- Previous Arrow -->
+        <button id="modalPrevBtn" class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white shadow-xl border border-slate-600/60 transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Previous figure (Left Arrow)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+
+        <!-- Enlarged Image -->
+        <img id="modalFigureImage" src="" alt="Enlarged Benchmark Figure" class="max-h-[66vh] w-auto max-w-full object-contain rounded-lg shadow-2xl transition-all duration-200">
+
+        <!-- Next Arrow -->
+        <button id="modalNextBtn" class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white shadow-xl border border-slate-600/60 transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Next figure (Right Arrow)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3.5 bg-slate-800/80 border-t border-slate-700/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <p id="modalFigureDesc" class="text-slate-300 leading-relaxed max-w-3xl">Description</p>
+        <div class="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+          <span id="modalFigureTag" class="text-[11px] font-mono text-slate-300 whitespace-nowrap bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-700/60">Tag</span>
+          <span id="modalCounter" class="text-[11px] font-mono text-slate-400">1 of 8</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- RIGOROUS MATHEMATICAL FOUNDATIONS -->
   <section id="physics" class="py-14 px-4 sm:px-6 lg:px-8 border-t border-iact-border bg-iact-card/20">

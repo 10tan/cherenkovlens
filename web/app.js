@@ -813,13 +813,152 @@ function initUI() {
     updatePipeline();
   });
 
-  btnReseed.addEventListener('click', () => {
+    btnReseed.addEventListener('click', () => {
     rngSeed = Math.floor(Math.random() * 100000);
     updatePipeline();
   });
 
   updateSliderDisplay();
   updatePipeline();
+  initLightbox();
+}
+
+// -------------------------------------------------------------
+// Publication Figures Lightbox Modal Controller
+// -------------------------------------------------------------
+const BENCHMARK_FIGURES = [
+  {
+    src: 'figures/cleaning_study.png',
+    title: 'Figure 1: Tail-Cuts vs Naive Cleaning',
+    tag: 'Core: 6.0σ • Bound: 3.0σ',
+    desc: 'Two-level tail-cuts topological island cleaning retains +8.11 percentage points more true shower pixels (62.2% vs 54.1%) and reduces total shower Size reconstruction bias to -4.24% (compared to -7.11% for naive single-cut). Isolated spurious NSB noise fluctuations are completely rejected while preserving faint boundary shower pixels connected to core seeds.',
+  },
+  {
+    src: 'figures/hillas_validation.png',
+    title: 'Figure 2: Hillas Ground-Truth Parameter Recovery',
+    tag: '1,000 Noise-Free Showers',
+    desc: 'Exact closed-form 2×2 covariance eigensolver validates against true simulated shower geometry with Pearson correlation r > 0.996 across all spatial dimensions: Length (r = 0.9976), Width (r = 0.9988), Centroid Distance (r = 0.9997), and Alpha pointing angle (r = 0.9963).',
+  },
+  {
+    src: 'figures/roc_curve.png',
+    title: 'Figure 3: Classifier ROC Curves',
+    tag: 'Stratified 80/20 Test Split (7,992 Events)',
+    desc: 'Stratified test set Receiver Operating Characteristic (ROC) curves comparing Random Forest (AUC = 0.9999), Histogram Gradient Boosting (AUC = 0.9998), and Standardized Logistic Regression (AUC = 0.9996). Evaluated on 7,992 test events using morphological and timing features.',
+  },
+  {
+    src: 'figures/q_factor_curve.png',
+    title: 'Figure 4: Quality Factor Optimization',
+    tag: 'Peak Q_max: 59.36 • Cut: θ = 0.98',
+    desc: 'Telescope Quality Factor Q(θ) = ε_γ(θ) / √ε_p(θ) plotted versus classifier gamma probability cut θ. Random Forest achieves a peak Quality Factor of Q_max = 59.36 at optimal cut θ* = 0.98, yielding 93.95% gamma efficiency with only 0.025% proton survival—a ~59× boost in statistical observation significance.',
+  },
+  {
+    src: 'figures/alpha_distribution.png',
+    title: 'Figure 5: Alpha Pointing Angle Distribution',
+    tag: 'On-Axis Pointing Signature',
+    desc: 'Reconstructed Hillas pointing angle α distributions. Astronomical gamma rays originating from the on-axis target source align with the camera tracking center, peaking sharply at α ≈ 0° (median 6.8°), whereas isotropic cosmic-ray hadrons produce a flat, uniform distribution across [0°, 90°].',
+  },
+  {
+    src: 'figures/width_length_scatter.png',
+    title: 'Figure 6: Width vs Length Morphological Separation',
+    tag: 'Morphological Manifold',
+    desc: 'Scatter plot of extracted Hillas Width versus Length. Pure electromagnetic cascades develop via compact Coulomb scattering, forming a tight, narrow linear manifold in W/L parameter space. Hadronic proton showers exhibit secondary sub-cascades, generating much broader, irregular topologies.',
+  },
+  {
+    src: 'figures/feature_importance.png',
+    title: 'Figure 7: Random Forest Feature Importances',
+    tag: 'Gini & Permutation Metrics',
+    desc: 'Feature importance rankings: Arrival-time wavefront coherence (time_rms, 36.3%), lateral cascade width (width, 18.3%), longitudinal cascade length (length, 13.9%), and optical pointing alignment (alpha, 12.7%) provide the dominant discrimination power.',
+  },
+  {
+    src: 'figures/noise_robustness.png',
+    title: 'Figure 8: NSB Noise Robustness Benchmark',
+    tag: '1×, 2×, 4×, 8× Nominal NSB',
+    desc: 'Classification AUC and Quality Factor degradation across elevated Night Sky Background noise tiers (1×, 2×, 4×, 8× nominal noise, up to 36 pe/pixel simulating bright moonlit observation conditions). Two-level topological cleaning retains superior ROC AUC (0.9982) and Quality Factor (9.71) compared to naive thresholding (7.89).',
+  },
+];
+
+function initLightbox() {
+  const modal = document.getElementById('imageModal');
+  const container = document.getElementById('modalContainer');
+  const modalImg = document.getElementById('modalFigureImage');
+  const modalIndex = document.getElementById('modalFigureIndex');
+  const modalTitle = document.getElementById('modalFigureTitle');
+  const modalDesc = document.getElementById('modalFigureDesc');
+  const modalTag = document.getElementById('modalFigureTag');
+  const modalCounter = document.getElementById('modalCounter');
+  const modalOpenExternal = document.getElementById('modalOpenExternal');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalPrevBtn = document.getElementById('modalPrevBtn');
+  const modalNextBtn = document.getElementById('modalNextBtn');
+
+  if (!modal || !container || !modalImg) return;
+
+  let currentIndex = 0;
+
+  function renderFigure(idx) {
+    if (idx < 0) idx = BENCHMARK_FIGURES.length - 1;
+    if (idx >= BENCHMARK_FIGURES.length) idx = 0;
+    currentIndex = idx;
+
+    const fig = BENCHMARK_FIGURES[currentIndex];
+    modalImg.src = fig.src;
+    modalImg.alt = fig.title;
+    modalIndex.textContent = `Figure ${currentIndex + 1}`;
+    modalTitle.textContent = fig.title;
+    modalDesc.textContent = fig.desc;
+    modalTag.textContent = fig.tag;
+    modalCounter.textContent = `${currentIndex + 1} of ${BENCHMARK_FIGURES.length}`;
+    modalOpenExternal.href = fig.src;
+  }
+
+  function openModal(idx) {
+    renderFigure(idx);
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+
+    // Trigger smooth zoom-in
+    requestAnimationFrame(() => {
+      container.classList.remove('scale-95', 'opacity-0');
+      container.classList.add('scale-100', 'opacity-100');
+    });
+  }
+
+  function closeModal() {
+    container.classList.remove('scale-100', 'opacity-100');
+    container.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }, 200);
+  }
+
+  // Attach click listener to all figure cards
+  document.querySelectorAll('.figure-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.getAttribute('data-figure-index'), 10);
+      if (!isNaN(idx)) openModal(idx);
+    });
+  });
+
+  // Modal controls
+  modalCloseBtn.addEventListener('click', closeModal);
+  modalPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); renderFigure(currentIndex - 1); });
+  modalNextBtn.addEventListener('click', (e) => { e.stopPropagation(); renderFigure(currentIndex + 1); });
+
+  // Close when clicking outside container
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Keyboard navigation
+  window.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeModal();
+    else if (e.key === 'ArrowLeft') renderFigure(currentIndex - 1);
+    else if (e.key === 'ArrowRight') renderFigure(currentIndex + 1);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initUI);
