@@ -1,0 +1,10 @@
+{
+  "n_events": 1000,
+  "ctapipe_available": false,
+  "length_pearson_r": 0.9975702679598293,
+  "width_pearson_r": 0.9988368795076681,
+  "distance_pearson_r": 0.9996530201761633,
+  "alpha_pearson_r": 0.9962792025626648,
+  "mean_relative_error_length": 0.013207206355522834,
+  "mean_relative_error_width": 0.011147401433603118
+}

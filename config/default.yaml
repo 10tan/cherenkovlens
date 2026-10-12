@@ -1,0 +1,99 @@
+# ==============================================================================
+# CherenkovLens Configuration
+# Tunable parameters for camera, simulation, cleaning, Hillas, and classification
+# Modelled on MACE (Hanle, Ladakh) and HAGAR IACT analysis chains.
+# ==============================================================================
+
+seed: 42
+
+camera:
+  # Note: A real MACE camera consists of 1088 PMT pixels arranged in a graded layout
+  # (0.1 deg inner, 0.2 deg outer, ~4 deg total FoV) at 4270m altitude in Hanle, Ladakh.
+  # HAGAR is a 7-telescope wavefront sampling array.
+  # This simulation uses a uniform square or hexagonal pixel grid as an analytical representation.
+  n_pixels_side: 34           # 34x34 = 1156 pixels (approx MACE's 1088 pixels)
+  pixel_size_deg: 0.1         # angular width per pixel (deg)
+  geometry_type: "square"     # "square" or "hexagonal"
+
+noise:
+  # Night Sky Background (NSB) noise per pixel
+  type: "gaussian"            # "gaussian" or "poisson"
+  mu_nsb: 0.0                 # pedestal / baseline mean in photo-electrons (pe)
+  sigma_nsb: 4.5              # noise standard deviation in photo-electrons (pe)
+
+simulation:
+  gamma:
+    # Power-law energy distribution approximation via log-uniform amplitude
+    amp_min: 60.0             # minimum shower amplitude (pe)
+    amp_max: 3500.0           # maximum shower amplitude (pe)
+    amp_power_law_index: 2.5  # spectral index
+    length_min_deg: 0.12      # longitudinal standard deviation (deg)
+    length_max_deg: 0.38
+    width_min_deg: 0.04       # transverse standard deviation (deg)
+    width_max_deg: 0.14
+    centroid_r_max_deg: 1.1   # maximum radial position of shower core (deg)
+    alpha_scatter_deg: 10.0   # Gaussian angular dispersion around pointing vector (deg)
+    time_gradient_mean: 1.6   # arrival time gradient along major axis (ns/deg)
+    time_gradient_std: 0.4
+    time_jitter_ns: 0.35      # Cherenkov timing jitter (ns)
+
+  proton:
+    amp_min: 70.0
+    amp_max: 4500.0
+    n_blobs_min: 2            # hadronic sub-shower cascade blobs
+    n_blobs_max: 6
+    blob_spread_deg: 0.45     # spatial dispersion among sub-blobs (deg)
+    blob_size_min_deg: 0.06
+    blob_size_max_deg: 0.24
+    centroid_r_max_deg: 1.2
+    muon_ring_fraction: 0.08  # fraction of proton events with annular muon-like morphology
+    time_jitter_ns: 2.5       # incoherent timing jitter (ns)
+
+cleaning:
+  tailcuts:
+    core_sigma: 6.0           # core threshold = core_sigma * sigma_nsb
+    boundary_sigma: 3.0       # boundary threshold = boundary_sigma * sigma_nsb
+    connectivity: 8           # 8-connectivity for square grid
+    min_island_size: 2        # discard single-pixel spurious islands
+    subtract_baseline: true   # subtract mu_nsb before thresholding
+  naive:
+    threshold_sigma: 4.5      # single hard threshold = threshold_sigma * sigma_nsb
+    subtract_baseline: true
+
+hillas:
+  min_pixels: 3               # minimum surviving pixels required for Hillas calculation
+  min_size: 15.0              # minimum total photo-electrons required
+
+dataset:
+  n_events: 40000             # total simulated events
+  gamma_fraction: 0.5         # 50/50 balance
+  batch_size: 2000
+
+classifier:
+  test_size: 0.2
+  val_size: 0.1
+  random_state: 42
+  models:
+    - "random_forest"
+    - "gradient_boosting"
+    - "logistic_regression"
+  random_forest:
+    n_estimators: 120
+    max_depth: 12
+    min_samples_split: 5
+    random_state: 42
+    n_jobs: -1
+  gradient_boosting:
+    learning_rate: 0.08
+    max_depth: 5
+    n_estimators: 120
+    random_state: 42
+  logistic_regression:
+    max_iter: 1000
+    random_state: 42
+
+paths:
+  figures_dir: "figures"
+  results_dir: "results"
+  data_dir: "data"
+  models_dir: "models"

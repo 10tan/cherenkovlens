@@ -1,0 +1,104 @@
+{
+  "random_forest": {
+    "auc": 0.9999999373747496,
+    "accuracy": 0.9998748748748749,
+    "f1": 0.9998750156230471,
+    "precision": 0.9997500624843789,
+    "recall": 1.0,
+    "best_q_factor": 63.182275995725256,
+    "best_threshold": 0.30696969696969695,
+    "gamma_efficiency_at_best_q": 1.0,
+    "proton_survival_at_best_q": 0.000250501002004008,
+    "confusion_matrix": [
+      [
+        3991,
+        1
+      ],
+      [
+        0,
+        4000
+      ]
+    ],
+    "feature_importances": {
+      "size": 0.0010523634370398032,
+      "length": 0.11467147550211727,
+      "width": 0.17493965150055688,
+      "wl_ratio": 0.009968317220940527,
+      "distance": 0.005756326921947864,
+      "alpha": 0.11479205389699539,
+      "miss": 0.06268042801556789,
+      "concentration": 0.024009402920548827,
+      "n_pixels": 0.008194368974786835,
+      "time_gradient": 0.03173104283936185,
+      "time_rms": 0.4522045687701369
+    }
+  },
+  "gradient_boosting": {
+    "auc": 0.999999749498998,
+    "accuracy": 0.9998748748748749,
+    "f1": 0.9998750156230471,
+    "precision": 0.9997500624843789,
+    "recall": 1.0,
+    "best_q_factor": 63.182275995725256,
+    "best_threshold": 0.2673737373737374,
+    "gamma_efficiency_at_best_q": 1.0,
+    "proton_survival_at_best_q": 0.000250501002004008,
+    "confusion_matrix": [
+      [
+        3991,
+        1
+      ],
+      [
+        0,
+        4000
+      ]
+    ],
+    "feature_importances": {
+      "size": 0.00025025025025027237,
+      "length": 0.18608608608608615,
+      "width": 0.0014264264264264748,
+      "wl_ratio": 0.0001251251251251917,
+      "distance": 5.0050050050076676e-05,
+      "alpha": 0.15918418418418423,
+      "miss": 0.0005005005005005447,
+      "concentration": 0.0001251251251251917,
+      "n_pixels": 0.0,
+      "time_gradient": 0.0,
+      "time_rms": 0.2596596596596597
+    }
+  },
+  "logistic_regression": {
+    "auc": 1.0,
+    "accuracy": 0.9998748748748749,
+    "f1": 0.9998750156230471,
+    "precision": 0.9997500624843789,
+    "recall": 1.0,
+    "best_q_factor": 63.182275995725256,
+    "best_threshold": 0.38616161616161615,
+    "gamma_efficiency_at_best_q": 1.0,
+    "proton_survival_at_best_q": 0.000250501002004008,
+    "confusion_matrix": [
+      [
+        3991,
+        1
+      ],
+      [
+        0,
+        4000
+      ]
+    ],
+    "feature_importances": {
+      "size": 0.0,
+      "length": 0.04764764764764769,
+      "width": 0.03876376376376382,
+      "wl_ratio": 0.0003253253253253652,
+      "distance": 0.0,
+      "alpha": 0.0002502502502502946,
+      "miss": 0.00010010010010013115,
+      "concentration": 0.0009259259259259744,
+      "n_pixels": 0.0006256256256256699,
+      "time_gradient": 0.0,
+      "time_rms": 0.31774274274274283
+    }
+  }
+}

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cherenkovlens"
+version = "0.1.0"
+description = "Simulation, image-cleaning, feature extraction and classification pipeline for IACT telescopes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "CherenkovLens Team"}
+]
+dependencies = [
+    "numpy>=1.22.0",
+    "scipy>=1.8.0",
+    "scikit-learn>=1.0.0",
+    "matplotlib>=3.5.0",
+    "pandas>=1.4.0",
+    "streamlit>=1.20.0",
+    "tqdm>=4.64.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov",
+]
+validation = [
+    "ctapipe",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
