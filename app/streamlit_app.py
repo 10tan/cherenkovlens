@@ -94,10 +94,73 @@ def main():
     # --- SIDEBAR CONTROLS ---
     st.sidebar.header("Shower & Camera Controls")
 
+    # Interactive Presets
+    preset = st.sidebar.selectbox(
+        "Observation Scenario / Preset",
+        options=[
+            "Custom Parameters",
+            "🌟 On-Axis Gamma-Ray (High Confidence Signal)",
+            "⚡ Off-Axis Gamma-Ray (Pointing Dispersion)",
+            "💥 Cosmic-Ray Proton (Hadronic Background)",
+            "⭕ Muon Calibration Ring (Annular Arc)",
+            "🌔 High NSB Noise (Moonlight Observation)",
+        ],
+        index=1,
+    )
+
+    if preset == "🌟 On-Axis Gamma-Ray (High Confidence Signal)":
+        def_particle = "Gamma-ray (Signal)"
+        def_amp = 1200.0
+        def_x0, def_y0 = 0.45, 0.45
+        def_phi = 45.0
+        def_length, def_width = 0.24, 0.08
+        def_nsb = 4.5
+        def_muon = False
+    elif preset == "⚡ Off-Axis Gamma-Ray (Pointing Dispersion)":
+        def_particle = "Gamma-ray (Signal)"
+        def_amp = 800.0
+        def_x0, def_y0 = 0.45, 0.45
+        def_phi = 0.0  # Misaligned -> alpha approx 45 deg
+        def_length, def_width = 0.25, 0.09
+        def_nsb = 4.5
+        def_muon = False
+    elif preset == "💥 Cosmic-Ray Proton (Hadronic Background)":
+        def_particle = "Proton / Hadron (Background)"
+        def_amp = 1500.0
+        def_x0, def_y0 = 0.30, -0.20
+        def_phi = 20.0
+        def_length, def_width = 0.35, 0.22
+        def_nsb = 4.5
+        def_muon = False
+    elif preset == "⭕ Muon Calibration Ring (Annular Arc)":
+        def_particle = "Proton / Hadron (Background)"
+        def_amp = 900.0
+        def_x0, def_y0 = 0.0, 0.0
+        def_phi = 0.0
+        def_length, def_width = 0.30, 0.20
+        def_nsb = 4.5
+        def_muon = True
+    elif preset == "🌔 High NSB Noise (Moonlight Observation)":
+        def_particle = "Gamma-ray (Signal)"
+        def_amp = 1600.0
+        def_x0, def_y0 = 0.45, 0.45
+        def_phi = 45.0
+        def_length, def_width = 0.25, 0.08
+        def_nsb = 18.0  # 4x nominal noise
+        def_muon = False
+    else:  # Custom
+        def_particle = "Gamma-ray (Signal)"
+        def_amp = 750.0
+        def_x0, def_y0 = 0.45, 0.45
+        def_phi = 45.0
+        def_length, def_width = 0.25, 0.08
+        def_nsb = 4.5
+        def_muon = False
+
     particle_type = st.sidebar.radio(
         "Particle Nature",
         options=["Gamma-ray (Signal)", "Proton / Hadron (Background)"],
-        index=0,
+        index=0 if def_particle.startswith("Gamma") else 1,
     )
     is_gamma = particle_type.startswith("Gamma")
 
@@ -106,22 +169,25 @@ def main():
     sim = ShowerSimulator(camera=cam, config=cfg, rng=rng)
 
     st.sidebar.subheader("Physics Parameters")
-    amp = st.sidebar.slider("Shower Amplitude / Energy (pe)", min_value=80.0, max_value=3500.0, value=750.0, step=50.0)
-    x0 = st.sidebar.slider("Centroid X (deg)", min_value=-1.0, max_value=1.0, value=0.45, step=0.05)
-    y0 = st.sidebar.slider("Centroid Y (deg)", min_value=-1.0, max_value=1.0, value=0.45, step=0.05)
+    amp = st.sidebar.slider("Shower Amplitude / Energy (pe)", min_value=80.0, max_value=3500.0, value=float(def_amp), step=50.0)
+    x0 = st.sidebar.slider("Centroid X (deg)", min_value=-1.0, max_value=1.0, value=float(def_x0), step=0.05)
+    y0 = st.sidebar.slider("Centroid Y (deg)", min_value=-1.0, max_value=1.0, value=float(def_y0), step=0.05)
 
-    phi_deg = st.sidebar.slider("Major Axis / Orientation Angle phi (deg)", min_value=-90.0, max_value=90.0, value=45.0, step=2.0)
+    phi_deg = st.sidebar.slider("Major Axis / Orientation Angle phi (deg)", min_value=-90.0, max_value=90.0, value=float(def_phi), step=2.0)
 
     if is_gamma:
-        length = st.sidebar.slider("Shower Length (deg)", min_value=0.10, max_value=0.40, value=0.25, step=0.01)
-        width = st.sidebar.slider("Shower Width (deg)", min_value=0.03, max_value=0.18, value=0.08, step=0.01)
+        length = st.sidebar.slider("Shower Length (deg)", min_value=0.10, max_value=0.40, value=float(def_length), step=0.01)
+        width = st.sidebar.slider("Shower Width (deg)", min_value=0.03, max_value=0.18, value=float(def_width), step=0.01)
+        force_muon = False
     else:
-        force_muon = st.sidebar.checkbox("Simulate Single Muon Ring Variant", value=False)
+        force_muon = st.sidebar.checkbox("Simulate Single Muon Ring Variant", value=bool(def_muon))
 
     st.sidebar.subheader("Noise & Cleaning Cuts")
-    nsb_sigma = st.sidebar.slider("NSB Noise sigma (pe/pixel)", min_value=0.0, max_value=20.0, value=4.5, step=0.5)
-    core_sig = st.sidebar.slider("Tail-Cuts Core Threshold (sigma)", min_value=3.0, max_value=10.0, value=6.0, step=0.5)
-    bnd_sig = st.sidebar.slider("Tail-Cuts Boundary Threshold (sigma)", min_value=1.5, max_value=6.0, value=3.0, step=0.5)
+    nsb_sigma = st.sidebar.slider("NSB Noise sigma (pe/pixel)", min_value=0.0, max_value=25.0, value=float(def_nsb), step=0.5)
+    core_sig = st.sidebar.slider("Tail-Cuts Core Threshold (sigma)", min_value=2.0, max_value=12.0, value=6.0, step=0.5)
+    # Dynamically bound boundary_sigma to not exceed core_sigma
+    max_bnd = max(1.0, float(core_sig) - 0.5)
+    bnd_sig = st.sidebar.slider("Tail-Cuts Boundary Threshold (sigma)", min_value=1.0, max_value=float(core_sig), value=min(3.0, max_bnd), step=0.5)
 
     # --- SIMULATE EVENT ---
     if is_gamma:
@@ -145,10 +211,11 @@ def main():
         )
 
     # --- CLEAN EVENT ---
+    safe_core = max(core_sig, bnd_sig + 0.1)
     clean_res = tailcuts_clean(
         event.image,
         sigma_nsb=nsb_sigma if nsb_sigma > 0 else 1e-4,
-        core_sigma=core_sig,
+        core_sigma=safe_core,
         boundary_sigma=bnd_sig,
         min_island_size=2,
     )
@@ -235,33 +302,93 @@ def main():
             X_input = np.array([[feat_dict.get(k, np.nan) for k in feature_names]])
 
             prob_gamma = float(model.predict_proba(X_input)[0, 1])
+            prob_proton = 1.0 - prob_gamma
             is_pred_gamma = prob_gamma >= 0.5
 
-            col_pred1, col_pred2 = st.columns([1, 2])
-            with col_pred1:
-                st.metric("Predicted Gamma Probability P(γ)", f"{prob_gamma * 100:.1f}%")
-                if is_pred_gamma:
-                    st.success("Classification: **GAMMA-RAY** (Signal Candidate)")
-                else:
-                    st.error("Classification: **HADRON / PROTON** (Cosmic Ray Background)")
+            # Summary Metrics Row
+            m_col1, m_col2, m_col3 = st.columns(3)
+            with m_col1:
+                st.metric(
+                    label="P(Gamma Signal γ)",
+                    value=f"{prob_gamma * 100:.1f}%",
+                    delta=f"{'+' if is_pred_gamma else ''}{(prob_gamma - 0.5) * 100:.1f}% vs 50% cut",
+                )
+            with m_col2:
+                st.metric(
+                    label="P(Hadron Background p)",
+                    value=f"{prob_proton * 100:.1f}%",
+                    delta=f"{'-' if is_pred_gamma else '+'}{(prob_proton - 0.5) * 100:.1f}%",
+                    delta_color="inverse",
+                )
+            with m_col3:
+                # Estimated Q-factor boost if cut here
+                q_est = prob_gamma / max(1e-3, np.sqrt(max(1e-4, prob_proton))) if prob_proton > 0 else 63.18
+                st.metric(
+                    label="Effective Q-factor Multiplier",
+                    value=f"{min(63.2, q_est):.1f}x",
+                    help="Quality Factor Q = eps_gamma / sqrt(eps_proton) measures significance enhancement.",
+                )
 
-                st.progress(prob_gamma)
-                st.caption("Standard Threshold = 50.0% | Optimized Q-factor Cut ~ 70-80%")
+            # Prominent Classification Verdict Banner
+            if is_pred_gamma:
+                st.success(
+                    f"🟢 **SIGNAL CANDIDATE IDENTIFIED: Gamma-Ray Event** ({prob_gamma * 100:.1f}% confidence)\n\n"
+                    f"The shower exhibits characteristic electromagnetic properties: compact transverse width "
+                    f"(`{hillas.width:.3f}°`), tight pointing alignment toward the tracking center (`α = {hillas.alpha:.1f}°`), "
+                    f"and coherent Cherenkov wavefront timing (`RMS = {hillas.time_rms:.2f} ns`)."
+                )
+            else:
+                st.error(
+                    f"🔴 **BACKGROUND REJECTED: Cosmic-Ray Hadron (Proton)** ({prob_proton * 100:.1f}% confidence)\n\n"
+                    f"The shower displays hadronic characteristics: broad lateral diffusion, irregular multi-blob "
+                    f"structure (`W/L = {hillas.width / max(1e-4, hillas.length):.2f}`), isotropic pointing angle "
+                    f"(`α = {hillas.alpha:.1f}°`), or incoherent wavefront arrival time (`RMS = {hillas.time_rms:.2f} ns`)."
+                )
 
-            with col_pred2:
-                st.markdown("#### Morphological Signatures for Current Event")
-                st.write(
-                    f"- **Alpha Angle**: `{hillas.alpha:.1f}°` "
-                    f"({'Strongly on-axis (Gamma-like)' if hillas.alpha < 20 else 'Diffuse / Off-axis (Hadron-like)'})"
-                )
-                st.write(
-                    f"- **Width / Length Ratio**: `{hillas.width / max(1e-4, hillas.length):.3f}` "
-                    f"({'Compact ellipse (Gamma-like)' if (hillas.width / max(1e-4, hillas.length)) < 0.4 else 'Broad / Clumpy (Hadron-like)'})"
-                )
-                st.write(
-                    f"- **Timing RMS**: `{hillas.time_rms:.2f} ns` "
-                    f"({'Coherent Cherenkov wavefront' if hillas.time_rms < 1.0 else 'Incoherent hadronic sub-cascades'})"
-                )
+            # Discrimination Gauge Bar
+            st.markdown("#### Classifier Discrimination Gauge")
+            st.progress(prob_gamma)
+            col_bar_l, col_bar_r = st.columns([1, 1])
+            with col_bar_l:
+                st.caption(f"⬅️ Hadron (p): {prob_proton * 100:.1f}%")
+            with col_bar_r:
+                st.caption(f"Gamma (γ): {prob_gamma * 100:.1f}% ➡️")
+
+            st.markdown("---")
+            st.markdown("#### Morphological Parameter Diagnostic vs. Training Population")
+
+            # Diagnostic comparison table against known population medians
+            diag_df = pd.DataFrame([
+                {
+                    "Parameter": "Alpha Angle (α)",
+                    "Current Event": f"{hillas.alpha:.1f}°",
+                    "Gamma Population (Median)": "6.8° (< 12°)",
+                    "Hadron Population (Median)": "53.0° (Flat 0-90°)",
+                    "Discriminant Value": "Gamma-like" if hillas.alpha < 20 else "Hadron-like",
+                },
+                {
+                    "Parameter": "Width / Length (W/L)",
+                    "Current Event": f"{hillas.width / max(1e-4, hillas.length):.3f}",
+                    "Gamma Population (Median)": "0.32 (Compact)",
+                    "Hadron Population (Median)": "0.68 (Broad / Dispersed)",
+                    "Discriminant Value": "Gamma-like" if (hillas.width / max(1e-4, hillas.length)) < 0.45 else "Hadron-like",
+                },
+                {
+                    "Parameter": "Arrival-Time RMS",
+                    "Current Event": f"{hillas.time_rms:.2f} ns",
+                    "Gamma Population (Median)": "0.71 ns (Coherent)",
+                    "Hadron Population (Median)": "1.32 ns (Turbulent sub-cascades)",
+                    "Discriminant Value": "Gamma-like" if hillas.time_rms < 1.05 else "Hadron-like",
+                },
+                {
+                    "Parameter": "Concentration (conc)",
+                    "Current Event": f"{hillas.concentration:.3f}",
+                    "Gamma Population (Median)": "0.15 - 0.35 (Core peaked)",
+                    "Hadron Population (Median)": "0.08 - 0.20 (Diffuse blobs)",
+                    "Discriminant Value": "Gamma-like" if hillas.concentration > 0.14 else "Hadron-like",
+                },
+            ])
+            st.table(diag_df)
 
     with tab3:
         st.subheader("Observatory Context: Hanle, Ladakh & The MACE / HAGAR Experiments")

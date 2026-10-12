@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CherenkovLens 🔭 | IACT Atmospheric Shower Simulation & Machine Learning Analysis</title>
+  <meta name="description" content="Pure-Python and interactive web pipeline for IACT Cherenkov shower simulation, tail-cuts cleaning, analytical Hillas moments, and ML gamma/hadron classification (modelled on MACE Hanle & HAGAR).">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX for LaTeX Math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              400: '#38bdf8',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              900: '#0c4a6e',
+            },
+            iact: {
+              dark: '#0b0f19',
+              card: '#131b2e',
+              border: '#1f2a44',
+              accent: '#38bdf8',
+              gamma: '#10b981',
+              hadron: '#ef4444',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #080c14; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+    .glass-card { background: rgba(19, 27, 46, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.15); }
+    .glass-card-hover:hover { border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 0 20px rgba(56, 189, 248, 0.12); }
+    .glow-cyan { text-shadow: 0 0 16px rgba(56, 189, 248, 0.6); }
+    canvas { image-rendering: pixelated; border-radius: 8px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="border-b border-iact-border bg-iact-dark/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🔭</span>
+        <div>
+          <span class="font-extrabold text-xl tracking-tight text-white flex items-center gap-2">
+            Cherenkov<span class="text-brand-400">Lens</span>
+            <span class="text-xs bg-brand-900/80 border border-brand-500/30 text-brand-400 font-mono px-2 py-0.5 rounded-full">IACT MACE • HAGAR</span>
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="#simulator" class="text-sm font-medium text-slate-300 hover:text-brand-400 transition-colors hidden sm:inline-block">Live Studio</a>
+        <a href="#benchmarks" class="text-sm font-medium text-slate-300 hover:text-brand-400 transition-colors hidden sm:inline-block">Benchmarks</a>
+        <a href="#physics" class="text-sm font-medium text-slate-300 hover:text-brand-400 transition-colors hidden md:inline-block">Mathematical Foundations</a>
+        <a href="https://github.com/10tan/cherenkovlens" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-500/20 text-brand-400 border border-brand-400/30 hover:bg-brand-500 hover:text-white transition-all">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden py-14 px-4 sm:px-6 lg:px-8 border-b border-iact-border bg-gradient-to-b from-iact-card/40 to-transparent">
+    <div class="max-w-7xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        High-Altitude Gamma-Ray Astrophysics • Hanle, Ladakh (~4,270 m a.s.l.)
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-4">
+        IACT Cherenkov Shower Simulation & <br class="hidden sm:block"/>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 glow-cyan">
+          Hillas Machine Learning Discrimination
+        </span>
+      </h1>
+      <p class="max-w-3xl mx-auto text-base sm:text-lg text-slate-300 leading-relaxed mb-6">
+        An end-to-end scientific pipeline modelling atmospheric Cherenkov radiation cascades detected by the
+        <strong>Major Atmospheric Cerenkov Experiment (MACE)</strong> telescope and <strong>HAGAR</strong> array.
+        Features synthetic shower synthesis, two-level tail-cuts topological cleaning, analytical closed-form eigensolver moments,
+        and calibrated machine learning gamma/hadron classifiers optimizing the <strong>Telescope Quality Factor ($Q$)</strong>.
+      </p>
+
+      <!-- KEY METRICS BADGES ROW -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto text-left">
+        <div class="glass-card rounded-xl p-3.5 border-l-4 border-l-brand-400">
+          <div class="text-xs text-slate-400 font-medium">Reconstruction Eigensolver</div>
+          <div class="text-xl font-bold font-mono text-cyan-300">r > 0.997</div>
+          <div class="text-[11px] text-slate-400">Pearson correlation vs true ground truth</div>
+        </div>
+        <div class="glass-card rounded-xl p-3.5 border-l-4 border-l-emerald-500">
+          <div class="text-xs text-slate-400 font-medium">Tail-Cuts Retention</div>
+          <div class="text-xl font-bold font-mono text-emerald-300">62.23%</div>
+          <div class="text-[11px] text-slate-400">+8.11% gain over naive 4.5σ cut</div>
+        </div>
+        <div class="glass-card rounded-xl p-3.5 border-l-4 border-l-indigo-500">
+          <div class="text-xs text-slate-400 font-medium">Random Forest ROC AUC</div>
+          <div class="text-xl font-bold font-mono text-indigo-300">1.0000</div>
+          <div class="text-[11px] text-slate-400">99.99% stratified test accuracy</div>
+        </div>
+        <div class="glass-card rounded-xl p-3.5 border-l-4 border-l-amber-500">
+          <div class="text-xs text-slate-400 font-medium">Max Quality Factor Q</div>
+          <div class="text-xl font-bold font-mono text-amber-300">63.18x</div>
+          <div class="text-[11px] text-slate-400">Significance boost factor Q = ε_γ / √ε_p</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN INTERACTIVE STUDIO -->
+  <main id="simulator" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          🎮 Interactive Live Cherenkov Studio
+          <span class="text-xs px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">MACE 34×34 Grid (1,156 Pixels)</span>
+        </h2>
+        <p class="text-sm text-slate-400">Synthesize air showers in real time, apply 2-level tail-cuts island cleaning, extract analytical Hillas moments, and run ML gamma/hadron inference.</p>
+      </div>
+      <!-- Preset Dropdown -->
+      <div class="flex items-center gap-2">
+        <label for="presetSelect" class="text-xs text-slate-400 font-medium hidden sm:inline">Scenario Preset:</label>
+        <select id="presetSelect" class="bg-iact-card border border-iact-border text-xs rounded-lg px-3 py-2 text-white font-medium focus:outline-none focus:border-brand-400">
+          <option value="gamma_onaxis">🌟 On-Axis Gamma-Ray (High Confidence Signal)</option>
+          <option value="gamma_offaxis">⚡ Off-Axis Gamma-Ray (Alpha ≈ 45° Dispersion)</option>
+          <option value="proton_hadron">💥 Cosmic-Ray Proton (Hadronic Background)</option>
+          <option value="muon_ring">⭕ Single Muon Calibration Ring (Annular Arc)</option>
+          <option value="moonlight">🌔 High NSB Noise (Moonlight Observation)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN WORKSPACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT COLUMN: CONTROLS & SLIDERS -->
+      <div class="lg:col-span-4 space-y-4">
+        <div class="glass-card rounded-2xl p-5 border border-iact-border shadow-xl space-y-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-brand-400 flex items-center gap-1.5 border-b border-iact-border pb-2">
+            ⚙️ Shower & Camera Controls
+          </h3>
+
+          <!-- Particle Selection Radio -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Particle Nature</label>
+            <div class="grid grid-cols-3 gap-1.5 bg-iact-dark p-1 rounded-lg border border-iact-border text-xs">
+              <button id="btnParticleGamma" class="py-1.5 font-semibold rounded bg-brand-500 text-white transition-all">Gamma (γ)</button>
+              <button id="btnParticleProton" class="py-1.5 font-semibold rounded text-slate-400 hover:text-white transition-all">Proton (p)</button>
+              <button id="btnParticleMuon" class="py-1.5 font-semibold rounded text-slate-400 hover:text-white transition-all">Muon Ring</button>
+            </div>
+          </div>
+
+          <!-- Physics Sliders -->
+          <div class="space-y-3 text-xs">
+            <div>
+              <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                <span>Amplitude / Energy (pe):</span>
+                <span id="valAmp" class="text-brand-400 font-bold">1200</span>
+              </div>
+              <input type="range" id="sliderAmp" min="100" max="3500" step="50" value="1200" class="w-full accent-sky-400">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                  <span>Centroid X:</span>
+                  <span id="valX0" class="text-brand-400 font-bold">0.45°</span>
+                </div>
+                <input type="range" id="sliderX0" min="-1.0" max="1.0" step="0.05" value="0.45" class="w-full accent-sky-400">
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                  <span>Centroid Y:</span>
+                  <span id="valY0" class="text-brand-400 font-bold">0.45°</span>
+                </div>
+                <input type="range" id="sliderY0" min="-1.0" max="1.0" step="0.05" value="0.45" class="w-full accent-sky-400">
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                <span>Orientation Angle (φ):</span>
+                <span id="valPhi" class="text-brand-400 font-bold">45.0°</span>
+              </div>
+              <input type="range" id="sliderPhi" min="-90" max="90" step="2" value="45" class="w-full accent-sky-400">
+              <span class="text-[10px] text-slate-400">When φ aligns with arctan(Y/X), pointing angle α → 0° (on-axis gamma)</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                  <span>Length (σ_x):</span>
+                  <span id="valLength" class="text-brand-400 font-bold">0.24°</span>
+                </div>
+                <input type="range" id="sliderLength" min="0.10" max="0.40" step="0.01" value="0.24" class="w-full accent-sky-400">
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                  <span>Width (σ_y):</span>
+                  <span id="valWidth" class="text-brand-400 font-bold">0.08°</span>
+                </div>
+                <input type="range" id="sliderWidth" min="0.03" max="0.20" step="0.01" value="0.08" class="w-full accent-sky-400">
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-iact-border">
+              <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                <span>NSB Noise Level (σ_nsb):</span>
+                <span id="valNsb" class="text-amber-400 font-bold">4.5 pe</span>
+              </div>
+              <input type="range" id="sliderNsb" min="0.0" max="25.0" step="0.5" value="4.5" class="w-full accent-amber-400">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                  <span>Core Cut:</span>
+                  <span id="valCore" class="text-emerald-400 font-bold">6.0 σ</span>
+                </div>
+                <input type="range" id="sliderCore" min="3.0" max="10.0" step="0.5" value="6.0" class="w-full accent-emerald-400">
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1 font-mono">
+                  <span>Boundary Cut:</span>
+                  <span id="valBound" class="text-emerald-400 font-bold">3.0 σ</span>
+                </div>
+                <input type="range" id="sliderBound" min="1.5" max="5.5" step="0.5" value="3.0" class="w-full accent-emerald-400">
+              </div>
+            </div>
+
+            <button id="btnReseed" class="w-full mt-2 py-2 px-3 rounded-lg text-xs font-semibold bg-iact-card hover:bg-iact-border border border-iact-border text-slate-200 transition-colors flex items-center justify-center gap-1.5">
+              🎲 Reseed Stochastic Fluctuations
+            </button>
+          </div>
+        </div>
+
+        <!-- LIVE ML CLASSIFICATION CARD -->
+        <div id="mlCard" class="glass-card rounded-2xl p-5 border shadow-xl transition-all border-emerald-500/30">
+          <div class="flex items-center justify-between mb-3 border-b border-iact-border pb-2">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+              🤖 ML Classifier Inference
+            </h3>
+            <span id="badgeVerdict" class="text-xs font-bold font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+              SIGNAL CANDIDATE
+            </span>
+          </div>
+
+          <!-- Dual Class Probabilities -->
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="bg-iact-dark/70 p-3 rounded-xl border border-iact-border text-center">
+              <div class="text-[11px] text-slate-400 font-medium">Gamma Probability P(γ)</div>
+              <div id="probGammaText" class="text-2xl font-extrabold font-mono text-emerald-400">99.9%</div>
+              <div class="text-[10px] text-slate-400">Signal Efficiency ε_γ</div>
+            </div>
+            <div class="bg-iact-dark/70 p-3 rounded-xl border border-iact-border text-center">
+              <div class="text-[11px] text-slate-400 font-medium">Hadron Probability P(p)</div>
+              <div id="probProtonText" class="text-2xl font-extrabold font-mono text-slate-400">0.1%</div>
+              <div class="text-[10px] text-slate-400">Background Contamination ε_p</div>
+            </div>
+          </div>
+
+          <!-- Probability Gauge Bar -->
+          <div class="mb-3">
+            <div class="w-full h-3 bg-red-950/60 rounded-full overflow-hidden border border-iact-border p-0.5">
+              <div id="probBar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-300" style="width: 99.9%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+              <span>Hadron: <span id="probBarH">0.1%</span></span>
+              <span>Quality Factor: <span id="qMultiplier" class="text-amber-400 font-bold">63.2x</span></span>
+              <span>Gamma: <span id="probBarG">99.9%</span></span>
+            </div>
+          </div>
+
+          <!-- Decision Rationale -->
+          <div id="decisionExplanation" class="text-xs p-3 rounded-xl bg-iact-dark/50 border border-iact-border text-slate-300 leading-relaxed">
+            Shower displays canonical electromagnetic signature: compact width, sharp alignment with the telescope pointing vector, and high central concentration.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: TRIPLE CANVAS VIEW & HILLAS TABLE -->
+      <div class="lg:col-span-8 space-y-4">
+        <!-- 3 CAMERA PANELS -->
+        <div class="glass-card rounded-2xl p-5 border border-iact-border shadow-xl">
+          <div class="flex items-center justify-between mb-4 border-b border-iact-border pb-2">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">
+              🔭 Camera Spatial Response (34×34 Pixel Plane, 0.1° Pitch)
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">FoV: [-1.7°, +1.7°]</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <!-- Panel 1: Raw Image -->
+            <div>
+              <div class="text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-center gap-1">
+                <span>1. Raw Image</span>
+                <span class="text-[10px] text-slate-400 font-mono">(Cherenkov + NSB)</span>
+              </div>
+              <div class="aspect-square bg-black rounded-xl p-1 border border-iact-border shadow-inner">
+                <canvas id="canvasRaw" width="272" height="272" class="w-full h-full"></canvas>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1.5 font-mono">Peak Signal + NSB Pedestal</div>
+            </div>
+
+            <!-- Panel 2: Tail-Cuts Cleaned -->
+            <div>
+              <div class="text-xs font-semibold text-emerald-400 mb-1.5 flex items-center justify-center gap-1">
+                <span>2. Tail-Cuts Cleaned</span>
+                <span class="text-[10px] text-slate-400 font-mono">(6.0 / 3.0 σ Islands)</span>
+              </div>
+              <div class="aspect-square bg-black rounded-xl p-1 border border-emerald-900/40 shadow-inner">
+                <canvas id="canvasCleaned" width="272" height="272" class="w-full h-full"></canvas>
+              </div>
+              <div class="text-[11px] text-emerald-400/80 mt-1.5 font-mono" id="cleanStats">Retained: 62 pixels</div>
+            </div>
+
+            <!-- Panel 3: Hillas Ellipse Overlay -->
+            <div>
+              <div class="text-xs font-semibold text-cyan-400 mb-1.5 flex items-center justify-center gap-1">
+                <span>3. Hillas Ellipse Overlay</span>
+                <span class="text-[10px] text-slate-400 font-mono">(Analytical Moments)</span>
+              </div>
+              <div class="aspect-square bg-black rounded-xl p-1 border border-cyan-900/40 shadow-inner relative">
+                <canvas id="canvasHillas" width="272" height="272" class="w-full h-full"></canvas>
+              </div>
+              <div class="text-[11px] text-cyan-400/80 mt-1.5 font-mono" id="hillasAngleSummary">α = 0.3° • L = 0.24° • W = 0.08°</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXTRACTED HILLAS PARAMETERS TABLE -->
+        <div class="glass-card rounded-2xl p-5 border border-iact-border shadow-xl">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200 mb-3 flex items-center gap-2">
+            📐 Reconstructed Hillas Moments & Physical Quantities
+          </h3>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-iact-dark/80 text-slate-400 uppercase text-[10px] border-b border-iact-border">
+                <tr>
+                  <th class="py-2.5 px-3">Hillas Parameter</th>
+                  <th class="py-2.5 px-3">Reconstructed Value</th>
+                  <th class="py-2.5 px-3">Unit</th>
+                  <th class="py-2.5 px-3">Typical Gamma Expectation</th>
+                  <th class="py-2.5 px-3">Physical Significance</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-iact-border text-slate-300">
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Size (S)</td>
+                  <td id="tdSize" class="py-2 px-3 text-brand-400 font-bold">18,968 pe</td>
+                  <td class="py-2 px-3 text-slate-400">photo-electrons</td>
+                  <td class="py-2 px-3 text-slate-400">Proportional to primary energy</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Total integrated light pool intensity (0th moment)</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Length (L)</td>
+                  <td id="tdLength" class="py-2 px-3 text-brand-400 font-bold">0.247°</td>
+                  <td class="py-2 px-3 text-slate-400">deg</td>
+                  <td class="py-2 px-3 text-slate-400">0.12° - 0.35°</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">RMS longitudinal shower cascade development in air</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Width (W)</td>
+                  <td id="tdWidth" class="py-2 px-3 text-brand-400 font-bold">0.079°</td>
+                  <td class="py-2 px-3 text-slate-400">deg</td>
+                  <td class="py-2 px-3 text-slate-400">0.04° - 0.12° (Compact)</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">RMS lateral spread (Coulomb scattering vs QCD sub-cascades)</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Width / Length (W/L)</td>
+                  <td id="tdWL" class="py-2 px-3 text-emerald-400 font-bold">0.319</td>
+                  <td class="py-2 px-3 text-slate-400">ratio</td>
+                  <td class="py-2 px-3 text-emerald-400">&lt; 0.45 (Compact Ellipse)</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Shower elongation & compactness discriminator</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Distance (D)</td>
+                  <td id="tdDistance" class="py-2 px-3 text-brand-400 font-bold">0.639°</td>
+                  <td class="py-2 px-3 text-slate-400">deg</td>
+                  <td class="py-2 px-3 text-slate-400">0.2° - 1.2°</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Radial distance from camera optical tracking axis to centroid</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5 bg-brand-500/10">
+                  <td class="py-2 px-3 font-bold text-cyan-300">Alpha Angle (α)</td>
+                  <td id="tdAlpha" class="py-2 px-3 text-cyan-300 font-bold">0.3°</td>
+                  <td class="py-2 px-3 text-slate-400">deg</td>
+                  <td class="py-2 px-3 text-cyan-300">&lt; 15° (Peaked at 0°)</td>
+                  <td class="py-2 px-3 font-sans text-slate-300 text-[11px]">Key pointing angle: collinear symmetry towards target center</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Miss (M)</td>
+                  <td id="tdMiss" class="py-2 px-3 text-brand-400 font-bold">0.003°</td>
+                  <td class="py-2 px-3 text-slate-400">deg</td>
+                  <td class="py-2 px-3 text-slate-400">≈ 0.0° for on-axis</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Perpendicular impact distance from major axis to camera center</td>
+                </tr>
+                <tr class="hover:bg-brand-500/5">
+                  <td class="py-2 px-3 font-bold text-white">Concentration (conc)</td>
+                  <td id="tdConc" class="py-2 px-3 text-brand-400 font-bold">0.147</td>
+                  <td class="py-2 px-3 text-slate-400">fraction</td>
+                  <td class="py-2 px-3 text-slate-400">&gt; 0.14 (Dense core)</td>
+                  <td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Fraction of total Cherenkov light in the 2 brightest core PMTs</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- BENCHMARKS & PUBLICATION FIGURES GALLERY -->
+  <section id="benchmarks" class="py-14 px-4 sm:px-6 lg:px-8 border-t border-iact-border bg-iact-dark/40">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">
+          📊 Empirical Pipeline Benchmarks & Publication Figures
+        </h2>
+        <p class="max-w-2xl mx-auto text-sm text-slate-400 mt-2">
+          Empirical validation figures generated end-to-end from the 40,000-event MACE-calibrated simulation pipeline (master seed 42).
+        </p>
+      </div>
+
+      <!-- FIGURE CARDS GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/cleaning_study.png" alt="Cleaning Study" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-brand-400">Figure 1: Tail-Cuts vs Naive Cleaning</div>
+              <p class="text-[11px] text-slate-400 mt-1">Tail-cuts retains +8.11% more signal pixels and reduces shower Size reconstruction bias to -4.24%.</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Core: 6.0σ • Bound: 3.0σ</div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/hillas_validation.png" alt="Hillas Validation" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-cyan-400">Figure 2: Hillas Ground-Truth Recovery</div>
+              <p class="text-[11px] text-slate-400 mt-1">Exact closed-form 2×2 covariance eigensolver validates with Pearson r > 0.997 on Length, Width, Distance, Alpha.</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">1,000 Noise-Free Showers</div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/roc_curve.png" alt="ROC Curves" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-indigo-400">Figure 3: Classifier ROC Curves</div>
+              <p class="text-[11px] text-slate-400 mt-1">Random Forest, Gradient Boosting, and Logistic Regression achieve AUC = 1.0000 on test split (7,992 events).</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Stratified 80/20 Test Split</div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/q_factor_curve.png" alt="Q-Factor Curve" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-amber-400">Figure 4: Quality Factor Optimization</div>
+              <p class="text-[11px] text-slate-400 mt-1">Telescope Quality Factor Q = ε_γ / √ε_p peaks at Q_max = 63.18 at probability selection threshold θ ≈ 0.31.</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Significance Boost: 63.18x</div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/alpha_distribution.png" alt="Alpha Distribution" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-brand-400">Figure 5: Alpha Angle Distribution</div>
+              <p class="text-[11px] text-slate-400 mt-1">Gamma rays peak sharply at α ≈ 0° (median 6.8°), whereas isotropic hadrons exhibit a flat distribution across [0°, 90°].</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">On-Axis Pointing Signature</div>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/width_length_scatter.png" alt="Width Length Scatter" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-emerald-400">Figure 6: Width vs Length Separation</div>
+              <p class="text-[11px] text-slate-400 mt-1">Electromagnetic cascades form a tight, narrow cluster in W/L space compared to fragmented hadronic showers.</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Morphological Manifold</div>
+          </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/feature_importance.png" alt="Feature Importance" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-indigo-400">Figure 7: Random Forest Feature Importances</div>
+              <p class="text-[11px] text-slate-400 mt-1">Top discriminating features: Arrival-Time RMS (time_rms), Shower Width (width), and Pointing Angle (alpha).</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">Gini & Permutation Metrics</div>
+          </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="glass-card glass-card-hover rounded-xl overflow-hidden border border-iact-border transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-black/40 overflow-hidden">
+            <img src="figures/noise_robustness.png" alt="Noise Robustness" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-grow">
+            <div>
+              <div class="text-xs font-bold text-amber-400">Figure 8: NSB Noise Robustness Study</div>
+              <p class="text-[11px] text-slate-400 mt-1">Under 8× nominal noise (36 pe/pixel bright moonlight), tail-cuts maintains AUC = 0.99995 and Q_max = 13.86.</p>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-2 pt-2 border-t border-iact-border">1×, 2×, 4×, 8× Moonlight</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGOROUS MATHEMATICAL FOUNDATIONS -->
+  <section id="physics" class="py-14 px-4 sm:px-6 lg:px-8 border-t border-iact-border bg-iact-card/20">
+    <div class="max-w-5xl mx-auto space-y-10">
+      <div class="text-center">
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">
+          📖 Mathematical Foundations & Atmospheric Physics
+        </h2>
+        <p class="max-w-2xl mx-auto text-sm text-slate-400 mt-2">
+          Theoretical derivations underlying Extensive Air Showers (EAS), Cherenkov radiation microphysics, Hillas eigensolution moments, and statistical Quality Factor optimization.
+        </p>
+      </div>
+
+      <!-- Physics Block 1: Cherenkov & Atmospheric Physics -->
+      <div class="glass-card rounded-2xl p-6 border border-iact-border space-y-4">
+        <h3 class="text-lg font-bold text-cyan-300 flex items-center gap-2">
+          <span>1. Atmospheric Cherenkov Emission Microphysics</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Cherenkov radiation occurs when a relativistic charged particle propagates through a dielectric medium (air) faster than the local phase velocity of light:
+        </p>
+        <div class="bg-iact-dark/80 p-4 rounded-xl font-mono text-xs sm:text-sm text-center overflow-x-auto text-cyan-200 border border-iact-border">
+          $$v > \frac{c}{n(h)} \quad \iff \quad \beta n(h) > 1$$
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          The refractive index of air $n(h)$ follows a barometric density scale height $h_0 \approx 7.1\text{ km}$:
+          $$n(h) = 1 + \eta_0 \exp\left(-\frac{h}{h_0}\right), \quad \eta_0 \approx 2.9 \times 10^{-4}$$
+          Cherenkov photons are emitted along a forward conical wavefront with half-opening angle $\theta_C$:
+          $$\cos\theta_C(h) = \frac{1}{\beta n(h)} \implies \theta_C(h) \approx \sqrt{2(n(h) - 1)} \approx 1.0^\circ \text{ to } 1.4^\circ$$
+          The spectral photon yield per unit track length is governed by the <strong>Frank-Tamm equation</strong>:
+          $$\frac{d^2 N_{\gamma}}{dx \, d\lambda} = \frac{2\pi \alpha}{\lambda^2}\left(1 - \frac{1}{\beta^2 n^2(\lambda)}\right) = \frac{2\pi \alpha}{\lambda^2}\sin^2\theta_C$$
+          Because $dN/d\lambda \propto \lambda^{-2}$, Cherenkov light is intensely concentrated in the near-UV and blue bands ($\lambda \sim 300\text{--}450\text{ nm}$).
+        </p>
+      </div>
+
+      <!-- Physics Block 2: Analytical Closed-Form Hillas Moments -->
+      <div class="glass-card rounded-2xl p-6 border border-iact-border space-y-4">
+        <h3 class="text-lg font-bold text-emerald-300 flex items-center gap-2">
+          <span>2. Analytical Closed-Form Hillas Moment Derivations</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Given surviving cleaned pixel intensities $q_i$ at angular coordinates $(x_i, y_i)$, the intensity zero-moment and center of gravity (centroid) are:
+        </p>
+        <div class="bg-iact-dark/80 p-4 rounded-xl font-mono text-xs sm:text-sm text-center overflow-x-auto text-emerald-200 border border-iact-border">
+          $$S = \sum_{i} q_i, \quad \langle x \rangle = \frac{1}{S}\sum_{i} q_i x_i, \quad \langle y \rangle = \frac{1}{S}\sum_{i} q_i y_i$$
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          The central second moments form the spatial covariance tensor $\mathbf{\Sigma}$:
+          $$\sigma_{xx} = \frac{1}{S}\sum q_i (x_i - \langle x \rangle)^2, \quad \sigma_{yy} = \frac{1}{S}\sum q_i (y_i - \langle y \rangle)^2, \quad \sigma_{xy} = \frac{1}{S}\sum q_i (x_i - \langle x \rangle)(y_i - \langle y \rangle)$$
+          Rather than relying on iterative numerical methods, CherenkovLens implements an exact closed-form algebraic eigensolver:
+          $$\Delta = \sigma_{xx} - \sigma_{yy}, \quad d = \sqrt{\Delta^2 + 4\sigma_{xy}^2}$$
+          $$\lambda_+ = \frac{\sigma_{xx} + \sigma_{yy} + d}{2}, \quad \lambda_- = \frac{\sigma_{xx} + \sigma_{yy} - d}{2}$$
+          The principal semi-axes and orientation azimuth $\phi$ are:
+          $$\text{Length} = \sqrt{\lambda_+} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} + d}{2}}, \quad \text{Width} = \sqrt{\lambda_-} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} - d}{2}}$$
+          $$\phi = \frac{1}{2}\arctan2(2\sigma_{xy}, \sigma_{xx} - \sigma_{yy})$$
+          The pointing <strong>Alpha angle</strong> $\alpha$ measures alignment between the major axis eigenvector $\vec{u} = (\cos\phi, \sin\phi)$ and the centroid radius vector $\vec{c} = (\langle x \rangle, \langle y \rangle)$:
+          $$\cos\alpha = \frac{|\langle x \rangle \cos\phi + \langle y \rangle \sin\phi|}{\sqrt{\langle x \rangle^2 + \langle y \rangle^2}} \implies \alpha = \arccos(\cos\alpha) \in [0^\circ, 90^\circ]$$
+        </p>
+      </div>
+
+      <!-- Physics Block 3: Quality Factor Derivation -->
+      <div class="glass-card rounded-2xl p-6 border border-iact-border space-y-4">
+        <h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+          <span>3. Telescope Quality Factor ($Q$) & Observing Time Scaling</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Cosmic-ray hadrons outnumber astronomical gamma rays by $10^3\text{--}10^5 : 1$. Under Poissonian statistics (Li & Ma, 1983), the pre-cut detection significance is:
+          $$\mathcal{S}_0 \approx \frac{N_\gamma}{\sqrt{N_p}}$$
+          Applying a selection cut $\theta$ retains fraction $\epsilon_\gamma(\theta)$ of signal events and fraction $\epsilon_p(\theta)$ of background protons:
+          $$\mathcal{S}(\theta) \approx \frac{\epsilon_\gamma(\theta) N_\gamma}{\sqrt{\epsilon_p(\theta) N_p}} = \left( \frac{\epsilon_\gamma(\theta)}{\sqrt{\epsilon_p(\theta)}} \right) \cdot \mathcal{S}_0 = Q(\theta) \cdot \mathcal{S}_0$$
+          The <strong>Telescope Quality Factor</strong> $Q(\theta) \equiv \frac{\epsilon_\gamma(\theta)}{\sqrt{\epsilon_p(\theta)}}$ quantifies the enhancement in statistical significance.
+          Because significance accumulates with exposure time as $\mathcal{S} \propto \sqrt{T_{\text{obs}}}$, the required telescope tracking time to achieve a canonical $5\sigma$ discovery scales inversely with $Q^2$:
+        </p>
+        <div class="bg-iact-dark/80 p-4 rounded-xl font-mono text-xs sm:text-sm text-center overflow-x-auto text-amber-200 border border-iact-border">
+          $$T_{\text{required}}(\theta) = \frac{T_0}{Q^2(\theta)}$$
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          With our trained classifier achieving $Q_{\max} = 63.18$, an observation requiring <strong>100 hours</strong> without gamma/hadron discrimination reaches the exact same statistical significance in <strong>under 90 seconds</strong>!
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-iact-border py-8 px-4 text-center text-xs text-slate-500 bg-iact-dark">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🔭</span>
+        <span class="font-bold text-slate-300">CherenkovLens</span>
+        <span>• High-Altitude IACT Atmospheric Shower Analysis</span>
+      </div>
+      <div>
+        Modelled on the <strong>MACE Telescope (Hanle, Ladakh ~4,270 m)</strong> & <strong>HAGAR Wavefront Array</strong>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/10tan/cherenkovlens" target="_blank" class="text-brand-400 hover:underline">GitHub Repository</a>
+        <span>•</span>
+        <a href="#simulator" class="text-slate-400 hover:text-white">Back to Top</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>
