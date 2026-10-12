@@ -142,12 +142,22 @@ flowchart TD
 Night Sky Background (NSB) photons produce independent Gaussian/Poisson fluctuations across all $1,156$ camera pixels. A simple hard amplitude threshold faces a severe dilemma: lowering the threshold introduces spurious noise pixels that distort second moments, while raising it discards the faint lateral fringes of real showers.
 
 The two-level tail-cuts algorithm addresses this through topological adjacency:
-1. **Core Condition**: A pixel $i$ is designated as a core pixel if:
-   $$q_i \ge q_{\text{core}} = k_c \cdot \sigma_{\text{nsb}} \quad (k_c = 6.0)$$
-2. **Boundary Condition**: A pixel $j$ is designated as a boundary pixel if:
-   $$q_j \ge q_{\text{bound}} = k_b \cdot \sigma_{\text{nsb}} \quad (k_b = 3.0) \quad \text{and} \quad \exists \, i \in \mathcal{N}_8(j) \text{ such that } q_i \ge q_{\text{core}}$$
-   where $\mathcal{N}_8(j)$ represents the 8-connected Moore neighborhood on the square grid (or 6-connected hexagonal ring).
-3. **Graph Island Connected-Component Filtering**: The retained pixel set forms an adjacency graph $\mathcal{G} = (\mathcal{V}, \mathcal{E})$. We compute connected components via breadth-first search (BFS). Any isolated island containing fewer than $N_{\min} = 2$ pixels or lacking at least one core pixel is discarded.
+
+- **Core Condition**: A pixel $i$ is designated as a core pixel if:
+
+$$
+q_i \ge q_{\text{core}} = k_c \cdot \sigma_{\text{nsb}} \quad (k_c = 6.0)
+$$
+
+- **Boundary Condition**: A pixel $j$ is designated as a boundary pixel if it satisfies the boundary amplitude threshold and is topologically adjacent to at least one core pixel:
+
+$$
+q_j \ge q_{\text{bound}} = k_b \cdot \sigma_{\text{nsb}} \quad (k_b = 3.0) \quad \text{and} \quad \exists \, i \in \mathcal{N}_8(j) \text{ such that } q_i \ge q_{\text{core}}
+$$
+
+  where $\mathcal{N}_8(j)$ represents the 8-connected Moore neighborhood on the square grid (or 6-connected hexagonal ring).
+
+- **Graph Island Connected-Component Filtering**: The retained pixel set forms an adjacency graph $\mathcal{G} = (\mathcal{V}, \mathcal{E})$. We compute connected components via breadth-first search (BFS). Any isolated island containing fewer than $N_{\min} = 2$ pixels or lacking at least one core pixel is discarded.
 
 ---
 
@@ -157,52 +167,101 @@ Let $q_i$ denote the cleaned photo-electron charge in pixel $i$ at angular camer
 #### Zeroth and First Moments:
 The total shower size (intensity zero-moment) and center of gravity (centroid) are:
 
-$$S = \sum_{i \in \text{clean}} q_i, \quad \langle x \rangle = \frac{1}{S}\sum_{i \in \text{clean}} q_i x_i, \quad \langle y \rangle = \frac{1}{S}\sum_{i \in \text{clean}} q_i y_i$$
+$$
+S = \sum_{i \in \text{clean}} q_i, \quad \langle x \rangle = \frac{1}{S}\sum_{i \in \text{clean}} q_i x_i, \quad \langle y \rangle = \frac{1}{S}\sum_{i \in \text{clean}} q_i y_i
+$$
 
 #### Central Second Moments (Covariance Tensor):
 Let $dx_i = x_i - \langle x \rangle$ and $dy_i = y_i - \langle y \rangle$. The components of the spatial covariance matrix $\mathbf{\Sigma}$ are:
 
-$$\sigma_{xx} = \frac{1}{S}\sum_{i} q_i dx_i^2, \quad \sigma_{yy} = \frac{1}{S}\sum_{i} q_i dy_i^2, \quad \sigma_{xy} = \frac{1}{S}\sum_{i} q_i dx_i dy_i$$
+$$
+\sigma_{xx} = \frac{1}{S}\sum_{i} q_i dx_i^2, \quad \sigma_{yy} = \frac{1}{S}\sum_{i} q_i dy_i^2, \quad \sigma_{xy} = \frac{1}{S}\sum_{i} q_i dx_i dy_i
+$$
 
 #### Exact Algebraic Eigensolution:
-The eigenvalues of $\mathbf{\Sigma} = \begin{pmatrix} \sigma_{xx} & \sigma_{xy} \\ \sigma_{xy} & \sigma_{yy} \end{pmatrix}$ satisfy the characteristic equation $\det(\mathbf{\Sigma} - \lambda \mathbf{I}) = 0$:
+The components define the symmetric $2 \times 2$ covariance matrix $\mathbf{\Sigma}$:
 
-$$\lambda^2 - (\sigma_{xx} + \sigma_{yy})\lambda + (\sigma_{xx}\sigma_{yy} - \sigma_{xy}^2) = 0$$
+$$
+\mathbf{\Sigma} = \begin{pmatrix} \sigma_{xx} & \sigma_{xy} \\ \sigma_{xy} & \sigma_{yy} \end{pmatrix}
+$$
+
+The eigenvalues $\lambda$ satisfy the characteristic equation $\det(\mathbf{\Sigma} - \lambda \mathbf{I}) = 0$:
+
+$$
+\det\begin{pmatrix} \sigma_{xx} - \lambda & \sigma_{xy} \\ \sigma_{xy} & \sigma_{yy} - \lambda \end{pmatrix} = 0
+$$
+
+Expanding the determinant yields the quadratic characteristic polynomial:
+
+$$
+\lambda^2 - (\sigma_{xx} + \sigma_{yy})\lambda + (\sigma_{xx}\sigma_{yy} - \sigma_{xy}^2) = 0
+$$
 
 Defining coordinate variance asymmetry $\Delta \equiv \sigma_{xx} - \sigma_{yy}$ and discriminant $d \equiv \sqrt{\Delta^2 + 4\sigma_{xy}^2}$, the closed-form eigenvalues $\lambda_\pm$ are:
 
-$$\lambda_+ = \frac{\sigma_{xx} + \sigma_{yy} + d}{2}, \quad \lambda_- = \frac{\sigma_{xx} + \sigma_{yy} - d}{2}$$
+$$
+\lambda_+ = \frac{\sigma_{xx} + \sigma_{yy} + d}{2}, \quad \lambda_- = \frac{\sigma_{xx} + \sigma_{yy} - d}{2}
+$$
 
 The physical **Hillas Length** ($L$) and **Width** ($W$) are defined as the root-mean-square spreads along the principal axes:
 
-$$\text{Length} = \sqrt{\lambda_+} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} + d}{2}}$$
+$$
+\text{Length} = \sqrt{\lambda_+} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} + d}{2}}
+$$
 
-$$\text{Width} = \sqrt{\lambda_-} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} - d}{2}}$$
+$$
+\text{Width} = \sqrt{\lambda_-} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} - d}{2}}
+$$
 
-$$\text{Compactness Ratio} = \frac{\text{Width}}{\text{Length}} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} - d}{\sigma_{xx} + \sigma_{yy} + d}}$$
+$$
+\text{Compactness Ratio} = \frac{\text{Width}}{\text{Length}} = \sqrt{\frac{\sigma_{xx} + \sigma_{yy} - d}{\sigma_{xx} + \sigma_{yy} + d}}
+$$
 
 #### Shower Azimuth / Orientation Angle ($\phi$):
 The major axis eigenvector aligns with azimuth angle $\phi \in [-\pi/2, \pi/2]$:
 
-$$\tan(2\phi) = \frac{2\sigma_{xy}}{\sigma_{xx} - \sigma_{yy}} \implies \phi = \frac{1}{2} \arctan2(2\sigma_{xy}, \sigma_{xx} - \sigma_{yy})$$
+$$
+\tan(2\phi) = \frac{2\sigma_{xy}}{\sigma_{xx} - \sigma_{yy}} \implies \phi = \frac{1}{2} \arctan2(2\sigma_{xy}, \sigma_{xx} - \sigma_{yy})
+$$
 
 #### Geometrical Pointing Parameters:
-1. **Distance ($D$)**: Radial displacement from the camera tracking center $(0, 0)$ to shower centroid:
-   $$D = \sqrt{\langle x \rangle^2 + \langle y \rangle^2}$$
-2. **Alpha Angle ($\alpha$)**: The angle between the shower major axis unit vector $\vec{u} = (\cos\phi, \sin\phi)$ and the centroid radius vector $\vec{c} = (\langle x \rangle, \langle y \rangle)$:
-   $$\cos\alpha = \frac{|\vec{u} \cdot \vec{c}|}{\|\vec{u}\| \|\vec{c}\|} = \frac{|\langle x \rangle \cos\phi + \langle y \rangle \sin\phi|}{D} \implies \alpha = \arccos(\cos\alpha) \in [0^\circ, 90^\circ]$$
-   - For an **on-axis point source**, the shower axis points directly back to the origin, yielding $\alpha \approx 0^\circ$ (peaked within $\lesssim 10^\circ$).
-   - For **isotropic cosmic-ray hadrons**, primary trajectories are distributed uniformly across the celestial sphere, yielding a flat probability density:
-     $$P_{\text{hadron}}(\alpha) = \frac{1}{90^\circ} \quad \forall \, \alpha \in [0^\circ, 90^\circ]$$
-3. **Miss Parameter ($M$)**: Perpendicular distance from camera center to the major axis line:
-   $$M = D \sin\alpha = |\langle x \rangle \sin\phi - \langle y \rangle \cos\phi|$$
-4. **Concentration ($\text{conc}$)**: Fraction of total shower light in the two brightest core pixels:
-   $$\text{conc} = \frac{q_{(1)} + q_{(2)}}{S}$$
+- **Distance ($D$)**: Radial displacement from the camera tracking center $(0, 0)$ to shower centroid:
+
+$$
+D = \sqrt{\langle x \rangle^2 + \langle y \rangle^2}
+$$
+
+- **Alpha Angle ($\alpha$)**: The angle between the shower major axis unit vector $\vec{u} = (\cos\phi, \sin\phi)$ and the centroid radius vector $\vec{c} = (\langle x \rangle, \langle y \rangle)$:
+
+$$
+\cos\alpha = \frac{|\vec{u} \cdot \vec{c}|}{\|\vec{u}\| \|\vec{c}\|} = \frac{|\langle x \rangle \cos\phi + \langle y \rangle \sin\phi|}{D} \implies \alpha = \arccos(\cos\alpha) \in [0^\circ, 90^\circ]
+$$
+
+  - For an **on-axis point source**, the shower axis points directly back to the origin, yielding $\alpha \approx 0^\circ$ (peaked within $\lesssim 10^\circ$).
+  - For **isotropic cosmic-ray hadrons**, primary trajectories are distributed uniformly across the celestial sphere, yielding a flat probability density:
+
+$$
+P_{\text{hadron}}(\alpha) = \frac{1}{90^\circ} \quad \forall \, \alpha \in [0^\circ, 90^\circ]
+$$
+
+- **Miss Parameter ($M$)**: Perpendicular distance from camera center to the major axis line:
+
+$$
+M = D \sin\alpha = |\langle x \rangle \sin\phi - \langle y \rangle \cos\phi|
+$$
+
+- **Concentration ($\text{conc}$)**: Fraction of total shower light in the two brightest core pixels:
+
+$$
+\text{conc} = \frac{q_{(1)} + q_{(2)}}{S}
+$$
 
 #### Arrival-Time Gradient and RMS:
 The coordinate along the major axis is $p_i = dx_i \cos\phi + dy_i \sin\phi$. Fitting arrival times $t_i = t_0 + \nabla_t \cdot p_i$ via weighted linear regression yields the linear propagation slope $\nabla_t$ and the residual timing fluctuation $\sigma_t$ (incoherent sub-cascade spread):
 
-$$\nabla_t = \frac{\sum q_i p_i (t_i - \bar{t})}{\sum q_i p_i^2}, \quad \sigma_t = \sqrt{\frac{1}{S}\sum q_i (t_i - (t_0 + \nabla_t p_i))^2}$$
+$$
+\nabla_t = \frac{\sum q_i p_i (t_i - \bar{t})}{\sum q_i p_i^2}, \quad \sigma_t = \sqrt{\frac{1}{S}\sum q_i (t_i - (t_0 + \nabla_t p_i))^2}
+$$
 
 ---
 
@@ -281,11 +340,10 @@ Evaluated on a stratified test set of **7,992 events** (4,000 gamma rays, 3,992 
 | **Histogram Gradient Boosting** | 0.9998 | 99.61% | 0.9961 | 99.43% | 99.80% | 30.82 | 0.98 |
 | **Standardized Logistic Regression** | 0.9996 | 99.30% | 0.9930 | 99.20% | 99.40% | 24.15 | 0.94 |
 
-<p align="center">
-  <img src="figures/roc_curve.png" width="49%" alt="ROC Curves" />
-  <img src="figures/q_factor_curve.png" width="49%" alt="Quality Factor Curve" />
-</p>
-*Figures 3 & 4: Left: Stratified test set ROC curves comparing Random Forest, Histogram Gradient Boosting, and Logistic Regression. Right: Quality Factor $Q(\theta)$ versus decision threshold $\theta$, showing peak $Q_{\max} = 59.36$ with $93.95\%$ gamma efficiency and $0.025\%$ proton survival.*
+| Figure 3: Classifier ROC Curves | Figure 4: Telescope Quality Factor Optimization |
+| :---: | :---: |
+| <img src="figures/roc_curve.png" width="100%" alt="ROC Curves"> | <img src="figures/q_factor_curve.png" width="100%" alt="Quality Factor Curve"> |
+| *Stratified test set ROC curves comparing Random Forest (AUC = 0.9999), Histogram Gradient Boosting (AUC = 0.9998), and Standardized Logistic Regression (AUC = 0.9996).* | *Telescope Quality Factor $Q(\theta) = \epsilon_\gamma / \sqrt{\epsilon_p}$ vs decision threshold $\theta$, showing peak $Q_{\max} = 59.36$ at optimal cut $\theta^* = 0.98$ (93.95% $\gamma$ efficiency, 0.025% $p$ survival).* |
 
 ---
 
@@ -305,12 +363,10 @@ Evaluated on a stratified test set of **7,992 events** (4,000 gamma rays, 3,992 
 | `distance` | **1.22%** | Impact distance from camera center |
 | `size` | **0.28%** | Total reconstructed photo-electron charge |
 
-<p align="center">
-  <img src="figures/alpha_distribution.png" width="32.5%" alt="Alpha Distribution" />
-  <img src="figures/width_length_scatter.png" width="32.5%" alt="Width vs Length Scatter" />
-  <img src="figures/feature_importance.png" width="32.5%" alt="Feature Importance" />
-</p>
-*Figures 5, 6 & 7: Left: Reconstructed Alpha angle distribution peaking at $\alpha \approx 0^\circ$ for on-axis gamma rays. Middle: Width vs Length morphological manifold separation. Right: Random Forest Gini feature importances.*
+| Figure 5: Alpha Pointing Angle Distribution | Figure 6: Width vs Length Separation | Figure 7: Random Forest Feature Importances |
+| :---: | :---: | :---: |
+| <img src="figures/alpha_distribution.png" width="100%" alt="Alpha Distribution"> | <img src="figures/width_length_scatter.png" width="100%" alt="Width vs Length Scatter"> | <img src="figures/feature_importance.png" width="100%" alt="Feature Importance"> |
+| *Reconstructed Alpha angle distribution: on-axis gamma rays peak sharply at $\alpha \approx 0^\circ$ while isotropic background hadrons form a flat distribution across $[0^\circ, 90^\circ]$.* | *Hillas Width versus Length morphological parameter space showing compact Coulomb scattering for gammas vs broader fragmented hadronic spread.* | *Permutation and Gini importance rankings: arrival-time wavefront coherence (36.3%), lateral cascade width (18.3%), and pointing angle alpha (12.7%) dominate.* |
 
 ---
 
